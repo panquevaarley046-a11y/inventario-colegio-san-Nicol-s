@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body{
+            background:
+                radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+                radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+                #020817;
+            color:white; display:flex; min-height:100vh; overflow-x:hidden;
+        }
+        ::-webkit-scrollbar{ width:8px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+        .sidebar{
+            width:270px; background:rgba(6,18,38,0.85); backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08); padding:20px 15px;
+            display:flex; flex-direction:column; justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15); position:sticky; top:0; height:100vh;
+        }
+        .logo{ text-align:center; padding-top:15px; }
+        .logo img{ width:150px; height:auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37,99,235,0.7)); }
+        .logo h2{ font-size:26px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:13px; }
+        .menu{ margin-top:30px; margin-left:-15px; margin-right:-15px; }
+        .menu a{ display:flex; align-items:center; gap:12px; padding:13px 30px; border-radius:0; color:white; text-decoration:none; margin-bottom:2px; transition:0.3s; font-weight:500; font-size:14px; }
+        .menu a:hover, .menu a.active{ background:linear-gradient(90deg,#2563eb,#7c3aed); box-shadow:0 4px 15px rgba(37,99,235,0.3); }
+        .bottom-box{ background:linear-gradient(135deg,#0f172a,#111827); border-radius:22px; padding:12px 15px; border:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; cursor:pointer; position:relative; transition:0.3s; }
+        .bottom-box:hover{ background:#1e293b; }
+        .user-avatar{ width:42px; height:42px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; border:2px solid #2563eb; overflow:hidden; }
+        .user-avatar img{ width:100%; height:100%; object-fit:cover; display:none; }
+        .user-info{ flex:1; }
+        .user-info h4{ font-size:14px; font-weight:600; }
+        .user-info p{ color:#9ca3af; font-size:11px; }
+        .arrow-up{ font-size:10px; color:#64748b; }
+        .user-dropdown{ position:absolute; bottom:85px; left:0; width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:10px; box-shadow:0 -10px 25px rgba(0,0,0,0.5); display:none; flex-direction:column; z-index:999; }
+        .user-dropdown a{ padding:10px 14px !important; font-size:13px !important; border-radius:10px !important; margin-bottom:4px !important; display:flex !important; align-items:center; gap:10px; color:white !important; text-decoration:none !important; transition:0.2s; background:transparent !important; box-shadow:none !important; }
+        .user-dropdown a:hover{ background:rgba(255,255,255,0.05) !important; }
+        .main{ flex:1; padding:30px; overflow-y:auto; }
+        .topbar{ margin-bottom:30px; }
+        .title h1{ font-size:42px; font-weight:800; background:linear-gradient(90deg,#2563eb,#cf55f7); background-clip:text; -webkit-background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+        .title p{ color:#94a3b8; margin-top:5px; font-size:15px; }
+        .tabs{ display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap; }
+        .tab{ padding:10px 22px; border-radius:12px; cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#94a3b8; font-size:13px; font-weight:500; transition:0.3s; }
+        .tab:hover{ background:rgba(37,99,235,0.15); color:white; }
+        .tab.active{ background:linear-gradient(90deg,#2563eb,#7c3aed); color:white; border-color:transparent; }
+        .seccion{ display:none; }
+        .seccion.visible{ display:block; }
+        .manual-card{ background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:24px; padding:28px; border:1px solid rgba(255,255,255,0.06); margin-bottom:20px; }
+        .manual-card h2{ font-size:20px; font-weight:700; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06); background:linear-gradient(90deg,#2563eb,#a855f7); background-clip:text; -webkit-background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+        .manual-card h3{ font-size:15px; font-weight:600; margin:16px 0 8px; color:#60a5fa; }
+        .manual-card p{ color:#cbd5e1; font-size:14px; line-height:1.8; margin-bottom:10px; }
+        .manual-card ul{ margin-left:20px; }
+        .manual-card li{ color:#cbd5e1; font-size:14px; line-height:1.9; }
+        .paso{ display:flex; gap:16px; align-items:flex-start; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:16px; padding:16px; margin-bottom:14px; }
+        .paso-num{ min-width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+        .paso-txt h4{ font-size:14px; font-weight:600; margin-bottom:4px; }
+        .paso-txt p{ font-size:13px; color:#94a3b8; margin:0; line-height:1.6; }
+        .alerta{ background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:14px 18px; margin-bottom:14px; color:#fbbf24; font-size:13px; display:flex; gap:10px; align-items:flex-start; }
+        .alerta-ok{ background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#34d399; }
+        .faq-item{ background:rgba(15,23,42,0.8); border-radius:16px; border:1px solid rgba(255,255,255,0.05); margin-bottom:10px; overflow:hidden; }
+        .faq-q{ padding:16px 20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:500; transition:0.2s; }
+        .faq-q:hover{ background:rgba(37,99,235,0.08); }
+        .faq-a{ padding:0 20px; max-height:0; overflow:hidden; transition:0.3s; color:#94a3b8; font-size:13px; line-height:1.7; }
+        .faq-a.open{ padding:0 20px 16px; max-height:300px; }
+        .faq-icon{ font-size:18px; transition:0.3s; }
+        .faq-icon.rot{ transform:rotate(45deg); }
+        @media(max-width:768px){ body{ flex-direction:column; } .sidebar{ width:100%; height:auto; position:relative; } .title h1{ font-size:30px; } }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <div class="logo">
+            <img src="imagenes.png/enojona.png" alt="Logo">
+            <h2>San Nicolás</h2>
+            <p>Sistema Inteligente de Inventario</p>
+        </div>
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <a href="manual_usuario.html" class="active">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+    </div>
+    <div class="bottom-box" id="user-menu-trigger" onclick="toggleUserMenu(event)">
+        <div class="user-avatar" id="sidebar-avatar">
+            <img id="sidebar-avatar-img" src="" alt="">
+            <span id="sidebar-avatar-text">AN</span>
+        </div>
+        <div class="user-info">
+            <h4 id="sidebar-name">Administrador</h4>
+            <p id="sidebar-email">admin@sanicolas.edu.co</p>
+        </div>
+        <span class="arrow-up">▲</span>
+        <div class="user-dropdown" id="user-dropdown-menu">
+            <a href="perfil.html">👤 Mi Perfil</a>
+            <a href="ayuda.html">❓ Soporte Técnico</a>
+            <hr style="border:1px solid rgba(255,255,255,0.05);margin:5px 0;">
+            <a href="login.html" style="color:#f87171 !important;">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <div class="title">
+            <h1>📘 MANUAL DE USUARIO</h1>
+            <p>Guía completa para el uso del Sistema de Inventario San Nicolás</p>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="mostrarSeccion('intro', this)">📋 Introducción</div>
+        <div class="tab" onclick="mostrarSeccion('acceso', this)">🔐 Acceso</div>
+        <div class="tab" onclick="mostrarSeccion('navegacion', this)">🧭 Navegación</div>
+        <div class="tab" onclick="mostrarSeccion('salones', this)">🏫 Salones</div>
+        <div class="tab" onclick="mostrarSeccion('inventario', this)">📦 Inventario</div>
+        <div class="tab" onclick="mostrarSeccion('qr', this)">📱 Códigos QR</div>
+        <div class="tab" onclick="mostrarSeccion('perfil', this)">👤 Perfil</div>
+        <div class="tab" onclick="mostrarSeccion('faq', this)">❓ FAQ</div>
+    </div>
+
+    <!-- INTRODUCCIÓN -->
+    <div class="seccion visible" id="sec-intro">
+        <div class="manual-card">
+            <h2>📋 Introducción al Sistema</h2>
+            <p>El <strong>Sistema de Inventario San Nicolás</strong> es una plataforma web diseñada para la <strong>Institución Educativa Técnica San Nicolás</strong>, que permite gestionar de forma eficiente todos los equipos, recursos y espacios de la institución.</p>
+            <h3>¿Para qué sirve?</h3>
+            <ul>
+                <li>Registrar y consultar el inventario de cada salón</li>
+                <li>Controlar el estado de equipos (disponible, mantenimiento, novedad)</li>
+                <li>Generar códigos QR de acceso rápido por salón</li>
+                <li>Visualizar reportes del estado general de la institución</li>
+                <li>Gestionar usuarios y perfiles del sistema</li>
+            </ul>
+            <h3>¿Quiénes pueden usarlo?</h3>
+            <ul>
+                <li>🧑‍💼 <strong>Administrador:</strong> acceso total al sistema</li>
+                <li>👩‍🏫 <strong>Coordinador:</strong> consulta y reportes</li>
+                <li>🧑‍🔧 <strong>Operador:</strong> registro de novedades</li>
+            </ul>
+        </div>
+        <div class="manual-card">
+            <h2>💻 Requisitos del Sistema</h2>
+            <ul>
+                <li>Navegador actualizado: Chrome, Firefox, Edge o Safari</li>
+                <li>Conexión a internet (para códigos QR y fuentes)</li>
+                <li>Resolución mínima recomendada: 1280 x 720 px</li>
+                <li>No requiere instalación de ningún programa adicional</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ACCESO -->
+    <div class="seccion" id="sec-acceso">
+        <div class="manual-card">
+            <h2>🔐 Cómo Acceder al Sistema</h2>
+            <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><h4>Abrir el sistema</h4><p>Abre tu navegador y dirígete a la página principal del sistema. Verás la pantalla de bienvenida con el logo de San Nicolás.</p></div></div>
+            <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><h4>Presionar INGRESAR</h4><p>Haz clic en el botón <strong>🚀 INGRESAR</strong> para ir a la pantalla de inicio de sesión.</p></div></div>
+            <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><h4>Ingresar tus datos</h4><p>Escribe tu <strong>correo electrónico</strong> y tu <strong>contraseña</strong> en los campos correspondientes.</p></div></div>
+            <div class="paso"><div class="paso-num">4</div><div class="paso-txt"><h4>Hacer clic en COMENZAR</h4><p>Presiona el botón <strong>COMENZAR</strong>. Si los datos son correctos, entrarás al panel principal.</p></div></div>
+            <div class="alerta">⚠️ Si olvidaste tu contraseña, comunícate con el administrador del sistema para restablecerla.</div>
+            <h3>Cerrar sesión</h3>
+            <p>Haz clic en tu nombre en la parte inferior del menú lateral y selecciona <strong>🚪 Cerrar Sesión</strong>.</p>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <div class="seccion" id="sec-navegacion">
+        <div class="manual-card">
+            <h2>🧭 Navegación del Sistema</h2>
+            <p>El sistema tiene un <strong>menú lateral izquierdo</strong> con todas las secciones disponibles:</p>
+            <div class="paso"><div class="paso-num">🏠</div><div class="paso-txt"><h4>Inicio</h4><p>Panel principal con el resumen general del inventario.</p></div></div>
+            <div class="paso"><div class="paso-num">📦</div><div class="paso-txt"><h4>Inventario</h4><p>Lista completa de todos los equipos registrados en la institución.</p></div></div>
+            <div class="paso"><div class="paso-num">🏫</div><div class="paso-txt"><h4>Salones</h4><p>Vista de todos los espacios educativos con su inventario individual.</p></div></div>
+            <div class="paso"><div class="paso-num">📊</div><div class="paso-txt"><h4>Reportes</h4><p>Informes detallados del estado del inventario por espacio o fecha.</p></div></div>
+            <div class="paso"><div class="paso-num">🛠</div><div class="paso-txt"><h4>Mantenimiento</h4><p>Equipos con órdenes de servicio activas o en revisión técnica.</p></div></div>
+            <div class="paso"><div class="paso-num">📜</div><div class="paso-txt"><h4>Historial</h4><p>Registro de todos los cambios y movimientos realizados en el sistema.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SALONES -->
+    <div class="seccion" id="sec-salones">
+        <div class="manual-card">
+            <h2>🏫 Módulo de Salones</h2>
+            <p>En esta sección puedes ver y gestionar todos los espacios educativos de la institución.</p>
+            <h3>Ver el inventario de un salón</h3>
+            <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><h4>Ir a Salones</h4><p>Haz clic en <strong>🏫 Salones</strong> en el menú lateral.</p></div></div>
+            <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><h4>Seleccionar un espacio</h4><p>Haz clic sobre la tarjeta del salón que deseas consultar.</p></div></div>
+            <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><h4>Ver el inventario</h4><p>Se abrirá la página del salón con todos sus equipos, cantidades y estado.</p></div></div>
+            <h3>Espacios disponibles</h3>
+            <ul>
+                <li>Salones 1 al 9 (SN-01 a SN-09)</li>
+                <li>Polivalente (SN-POL) · Restaurante (SN-REST)</li>
+                <li>Sala de Informática (SN-INFO) · Sala de Profesores (SN-PROF)</li>
+                <li>Sala Técnica (SN-TECN) · Laboratorio (SN-LAB)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div class="seccion" id="sec-inventario">
+        <div class="manual-card">
+            <h2>📦 Módulo de Inventario</h2>
+            <p>El inventario muestra todos los equipos y recursos registrados en cada espacio.</p>
+            <h3>¿Qué información se muestra?</h3>
+            <ul>
+                <li><strong>Nombre del equipo:</strong> silla, mesa, computador, proyector, etc.</li>
+                <li><strong>Cantidad:</strong> número de unidades disponibles</li>
+                <li><strong>Estado:</strong> Disponible 🟢, Mantenimiento 🟡, Novedad 🔴</li>
+                <li><strong>Última revisión:</strong> fecha del último chequeo</li>
+            </ul>
+            <h3>Tarjetas de resumen</h3>
+            <div class="paso"><div class="paso-num" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);">486</div><div class="paso-txt"><h4>Total equipos</h4><p>Suma de todos los equipos registrados.</p></div></div>
+            <div class="paso"><div class="paso-num" style="background:linear-gradient(135deg,#14532d,#16a34a);">412</div><div class="paso-txt"><h4>Disponibles</h4><p>Equipos en buen estado y listos para usar.</p></div></div>
+            <div class="paso"><div class="paso-num" style="background:linear-gradient(135deg,#78350f,#f59e0b);">38</div><div class="paso-txt"><h4>En Mantenimiento</h4><p>Equipos fuera de servicio temporalmente.</p></div></div>
+            <div class="paso"><div class="paso-num" style="background:linear-gradient(135deg,#7f1d1d,#ef4444);">36</div><div class="paso-txt"><h4>Novedades</h4><p>Equipos con daños o situaciones especiales reportadas.</p></div></div>
+        </div>
+    </div>
+
+    <!-- QR -->
+    <div class="seccion" id="sec-qr">
+        <div class="manual-card">
+            <h2>📱 Generador de Códigos QR</h2>
+            <p>Genera códigos QR únicos para cada salón. Al escanear con un celular, accedes directamente al inventario de ese espacio.</p>
+            <h3>Generar un QR individual</h3>
+            <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><h4>Ir a Salones</h4><p>En el menú, haz clic en 🏫 Salones.</p></div></div>
+            <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><h4>Seleccionar el espacio</h4><p>En el panel derecho, despliega el selector y elige el salón.</p></div></div>
+            <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><h4>Descargar</h4><p>Haz clic en <strong>Descargar QR</strong> para guardar la imagen.</p></div></div>
+            <h3>Imprimir todos los QR en lote</h3>
+            <p>Haz clic en <strong>🖨️ Imprimir Todos los QR (Lote)</strong> para generar un PDF con todos los códigos.</p>
+            <div class="alerta alerta-ok">✅ Se recomienda imprimir los QR y pegarlos en la puerta de cada salón para acceso rápido.</div>
+        </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="seccion" id="sec-perfil">
+        <div class="manual-card">
+            <h2>👤 Gestión de Perfil</h2>
+            <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><h4>Abrir el menú de usuario</h4><p>Haz clic en tu nombre en la parte inferior del menú lateral.</p></div></div>
+            <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><h4>Ir a Mi Perfil</h4><p>Selecciona <strong>👤 Mi Perfil</strong> en el menú desplegable.</p></div></div>
+            <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><h4>Activar edición</h4><p>Haz clic en el ícono 🔒 para activar el modo de edición.</p></div></div>
+            <div class="paso"><div class="paso-num">4</div><div class="paso-txt"><h4>Guardar cambios</h4><p>Modifica tus datos y presiona <strong>💾 Guardar Cambios</strong>.</p></div></div>
+            <h3>Cambiar foto de perfil</h3>
+            <ul>
+                <li><strong>Avatar emoji:</strong> elige uno de los 8 avatares prediseñados</li>
+                <li><strong>Foto del dispositivo:</strong> haz clic en "📁 Subir foto desde el dispositivo"</li>
+            </ul>
+            <h3>Cambiar contraseña</h3>
+            <p>En la sección de seguridad, ingresa tu contraseña actual, la nueva y confírmala. Mínimo 6 caracteres.</p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="seccion" id="sec-faq">
+        <div class="manual-card">
+            <h2>❓ Preguntas Frecuentes</h2>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué hago si no puedo iniciar sesión? <span class="faq-icon">+</span></div><div class="faq-a">Verifica que tu correo y contraseña estén correctos. Si el problema persiste, comunícate con el administrador del sistema.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo sé si un equipo está en mantenimiento? <span class="faq-icon">+</span></div><div class="faq-a">En las tarjetas de resumen verás el contador naranja de "Mantenimiento". También puedes ir al módulo 🛠 Mantenimiento para ver el detalle.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿El código QR expira? <span class="faq-icon">+</span></div><div class="faq-a">No. Los códigos QR son permanentes y apuntan directamente al inventario del salón seleccionado.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Puedo usar el sistema desde el celular? <span class="faq-icon">+</span></div><div class="faq-a">Sí. El sistema tiene diseño responsivo. Para mejor experiencia, usa el modo horizontal en tu celular.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Mis cambios de perfil se guardan al cerrar el navegador? <span class="faq-icon">+</span></div><div class="faq-a">Sí. Los datos del perfil se guardan en localStorage y se mantienen aunque cierres el navegador.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo reporto un equipo dañado? <span class="faq-icon">+</span></div><div class="faq-a">Ve al inventario del salón correspondiente, busca el equipo y actualiza su estado. También puedes usar el módulo de Soporte Técnico.</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function mostrarSeccion(id, tabEl) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('sec-' + id).classList.add('visible');
+        tabEl.classList.add('active');
+    }
+    function toggleFaq(el) {
+        const ans = el.nextElementSibling;
+        const icon = el.querySelector('.faq-icon');
+        ans.classList.toggle('open');
+        icon.classList.toggle('rot');
+    }
+    function toggleUserMenu(event) {
+        event.stopPropagation();
+        const d = document.getElementById('user-dropdown-menu');
+        const a = document.querySelector('.arrow-up');
+        d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+        if(a) a.style.transform = d.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+    window.addEventListener('click', function(e) {
+        const t = document.getElementById('user-menu-trigger');
+        if(t && !t.contains(e.target)) {
+            document.getElementById('user-dropdown-menu').style.display = 'none';
+            const a = document.querySelector('.arrow-up');
+            if(a) a.style.transform = 'rotate(0deg)';
+        }
+    });
+    const p = JSON.parse(localStorage.getItem('perfil_usuario') || '{}');
+    if(p.foto){ const i=document.getElementById('sidebar-avatar-img'); i.src=p.foto; i.style.display='block'; document.getElementById('sidebar-avatar-text').style.display='none'; }
+    else if(p.avatar){ document.getElementById('sidebar-avatar-text').textContent=p.avatar; }
+    if(p.nombre) document.getElementById('sidebar-name').textContent=p.nombre;
+    if(p.correo) document.getElementById('sidebar-email').textContent=p.correo;
+</script>
+</body>
+</html>

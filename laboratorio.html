@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio - ScanClass QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           Estilos Generales y Variables del Sistema
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --bg-dark-deep: #0a112e; 
+            --bg-dark-accent: #111b3e; 
+            
+            --color-blue: #329df0; 
+            --color-green: #29b867; 
+            --color-orange: #f5a623; 
+            --color-red: #d94136; 
+            --color-purple: #7a4ed7; 
+
+            --text-main: #ffffff; 
+            --text-secondary: #a0b2d3; 
+            --transition-main: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, var(--bg-dark-accent) 0%, var(--bg-dark-deep) 100%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1500px;
+        }
+
+        /* ============================================================
+           Cabecera (Título Futurista)
+           ============================================================ */
+        .titulo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .titulo h1 {
+            font-size: 80px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--color-purple), var(--color-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(122, 78, 215, 0.4));
+        }
+
+        .titulo p {
+            font-size: 26px;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Botón Agregar Objeto Principal */
+        .btn-agregar-principal {
+            display: block;
+            margin: 0 auto 40px auto;
+            background: linear-gradient(135deg, var(--color-blue), var(--color-purple));
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-main);
+            box-shadow: 0 4px 15px rgba(50, 157, 240, 0.3);
+        }
+
+        .btn-agregar-principal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(122, 78, 217, 0.5);
+        }
+
+        /* Control de visualización por Roles */
+        .solo-admin {
+            display: block;
+        }
+        
+        .ocultar-elemento {
+            display: none !important;
+        }
+
+        /* ============================================================
+           Contenedor Grid de Tarjetas
+           ============================================================ */
+        .contenedor {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 35px;
+        }
+
+        .card {
+            background: rgba(17, 27, 62, 0.5); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            transition: var(--transition-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: rgba(17, 27, 62, 0.7);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Botón Eliminar en la Esquina de la Caja */
+        .btn-eliminar-card {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(217, 65, 54, 0.1);
+            border: 1px solid rgba(217, 65, 54, 0.3);
+            color: var(--color-red);
+            font-size: 16px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-main);
+            z-index: 10;
+        }
+
+        .btn-eliminar-card:hover {
+            background: var(--color-red);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--color-red);
+        }
+
+        .icono {
+            font-size: 65px;
+            margin-bottom: 20px;
+            display: inline-block;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+        }
+
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .numero {
+            font-size: 80px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            line-height: 1;
+        }
+
+        /* Botones de Estilo Tecnológico */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            transition: var(--transition-main);
+            text-transform: uppercase;
+        }
+
+        /* ============================================================
+           Botón Volver Atrás
+           ============================================================ */
+        .contenedor-volver {
+            margin-top: 80px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-volver {
+            text-decoration: none;
+            border: 2px solid var(--text-secondary);
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 20px 60px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: 700;
+            transition: var(--transition-main);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-5px);
+            border-color: var(--text-main);
+            color: var(--text-main);
+            background: rgba(160, 178, 211, 0.1);
+        }
+
+        /* ============================================================
+           Ventana Emergente (Modal Adaptativo)
+           ============================================================ */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 9, 26, 0.85);
+            backdrop-filter: blur(15px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-contenido {
+            background: #111b3e;
+            border: 2px solid rgba(50, 157, 240, 0.3);
+            box-shadow: 0 0 40px rgba(50, 157, 240, 0.15);
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 30px;
+            position: relative;
+            text-align: center;
+            animation: aparecer .4s cubic-bezier(0.4, 0, 0.2, 1) ease;
+        }
+
+        @keyframes aparecer {
+            from { transform: scale(.9) translateY(-30px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .cerrar {
+            position: absolute;
+            right: 25px;
+            top: 15px;
+            font-size: 38px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition-main);
+        }
+        
+        .cerrar:hover { color: var(--text-main); }
+
+        .modal h1 {
+            font-size: 34px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        /* Detalles Técnicos */
+        .info-extras-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .info-row {
+            font-size: 15px;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            border-radius: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .info-row span {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .btn-editar-info {
+            background: rgba(50, 157, 240, 0.2);
+            border: 1px solid var(--color-blue);
+            color: var(--color-blue);
+            padding: 2px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition-main);
+        }
+
+        .btn-editar-info:hover {
+            background: var(--color-blue);
+            color: white;
+            box-shadow: 0 0 8px var(--color-blue);
+        }
+
+        .detalle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            padding: 25px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .bueno { border-bottom: 4px solid var(--color-green); }
+        .malo { border-bottom: 4px solid var(--color-red); }
+
+        .box h3 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .box p {
+            font-size: 50px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        
+        .bueno p { color: var(--color-green); }
+        .malo p { color: var(--color-red); }
+
+        /* Controles de incremento y decremento */
+        .control-edicion {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-modificar {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition-main);
+        }
+
+        .btn-modificar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn-cerrar {
+            background: transparent;
+            border: 2px solid var(--text-secondary);
+            color: var(--text-secondary);
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition-main);
+            text-transform: uppercase;
+        }
+
+        .btn-cerrar:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-eliminar-modal {
+            background: transparent;
+            border: 2px solid var(--color-red);
+            color: var(--color-red);
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition-main);
+            text-transform: uppercase;
+        }
+
+        .btn-eliminar-modal:hover {
+            background: var(--color-red);
+            color: white;
+            box-shadow: 0 0 15px var(--color-red);
+        }
+
+        /* Responsividad */
+        @media(max-width: 768px) {
+            .contenedor { grid-template-columns: 1fr; gap: 20px; }
+            .titulo h1 { font-size: 40px; }
+            .detalle { grid-template-columns: 1fr; }
+            body { padding: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="titulo">
+            <h1>🔬 Laboratorio</h1>
+            <p id="subtituloPanel">Panel de inventario y gestión de recursos del área de laboratorio</p>
+        </div>
+
+        <!-- BOTÓN: Agregar Objeto (Solo visible por Admin) -->
+        <button class="btn-agregar-principal solo-admin" onclick="agregarNuevoObjeto()">➕ Agregar Nuevo Objeto</button>
+
+        <!-- Contenedor dinámico de tarjetas de Laboratorio -->
+        <div class="contenedor" id="contenedorCards"></div>
+
+        <div class="contenedor-volver">
+            <a href="salones.html" class="btn-volver">
+                ⬅ Volver atrás
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Modal del Inventario del Laboratorio -->
+    <div class="modal" id="modalInventario">
+        <div class="modal-contenido" id="modalContent">
+            <span class="cerrar" onclick="cerrarModal()">&times;</span>
+
+            <h1 id="lblObjeto">Elemento</h1>
+            
+            <!-- Contenedor de Atributos del Elemento -->
+            <div class="info-extras-container">
+                <div class="info-row">
+                    <div>Capacidad / Tipo: <span id="lblMarca">Ninguna</span></div>
+                    <button class="btn-editar-info solo-admin" onclick="editarPropiedad('marca')">✏️ Editar</button>
+                </div>
+                <div class="info-row">
+                    <div>Lote / Serial Ref: <span id="lblSerial">Ninguno</span></div>
+                    <button class="btn-editar-info solo-admin" onclick="editarPropiedad('serial')">✏️ Editar</button>
+                </div>
+            </div>
+
+            <div class="detalle">
+                <div class="box bueno">
+                    <h3>En Buen Estado</h3> 
+                    <p id="lblBuenEstado">0</p>
+                    <div class="control-edicion solo-admin">
+                        <button class="btn-modificar" onclick="cambiarCantidad('buen', -1)">-</button>
+                        <button class="btn-modificar" onclick="cambiarCantidad('buen', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="box malo">
+                    <h3>En Mal Estado</h3>
+                    <p id="lblMalEstado">0</p>
+                    <div class="control-edicion solo-admin">
+                        <button class="btn-modificar" onclick="cambiarCantidad('mal', -1)">-</button>
+                        <button class="btn-modificar" onclick="cambiarCantidad('mal', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-eliminar-modal solo-admin" onclick="eliminarObjetoDesdeModal()">🗑 Eliminar Objeto</button>
+                <button class="btn-cerrar" onclick="cerrarModal()">Cerrar Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Captura y validación del Rol mediante parámetros URL (?rol=alumno)
+        const urlParams = new URLSearchParams(window.location.search);
+        const elRolEsAlumno = urlParams.get('rol') === 'alumno';
+
+        // Set de datos inicial del laboratorio mapeado en base a las hojas reales provistas
+        const inventarioInicial = [
+            // --- Página 2 ---
+            { id: "agitadores_vidrio", nombre: "Agitadores de Vidrio", icono: "🧪", buenEstado: 10, malEstado: 0, color: "#329df0", marca: "Estándar", serial: "ANTIGUO" },
+            { id: "aros_soporte", nombre: "Aros de Soporte Universal", icono: "⭕", buenEstado: 2, malEstado: 0, color: "#7a4ed7", marca: "Metálico", serial: "ANTIGUO" },
+            { id: "balanzas_brazo", nombre: "Balanzas de Triple Brazo", icono: "⚖️", buenEstado: 2, malEstado: 0, color: "#f5a623", marca: "Mecánica", serial: "REGISTRO" },
+            { id: "balones_desprendimiento", nombre: "Balones de Vidrio con Desprendimiento", icono: "🧪", buenEstado: 13, malEstado: 2, color: "#29b867", marca: "50ml, 100ml, 250ml, 500ml", serial: "MIXTO (9 Ant / 6 Nuev)" },
+            { id: "balones_planos", nombre: "Balones de Vidrio Planos", icono: "⚗️", buenEstado: 14, malEstado: 0, color: "#329df0", marca: "100ml, 250ml, 500ml", serial: "ANTIGUO" },
+            { id: "cucharas_combustion", nombre: "Cucharas de Combustión", icono: "🥄", buenEstado: 9, malEstado: 1, color: "#d94136", marca: "Estándar", serial: "MIXTO" },
+            { id: "cajas_diseccion", nombre: "Cajas de Disección", icono: "✂️", buenEstado: 13, malEstado: 2, color: "#7a4ed7", marca: "Rojas, Negras, Verdes", serial: "Incompletas: 2" },
+            { id: "cajas_cubreobjetos", nombre: "Cajas de Cubreobjetos", icono: "🔲", buenEstado: 1, malEstado: 0, color: "#29b867", marca: "Estándar", serial: "ANTIGUO" },
+            { id: "cajas_petri", nombre: "Cajas de Petri", icono: "🧫", buenEstado: 8, malEstado: 8, color: "#f5a623", marca: "Pequeñas, Grandes, Tapas", serial: "MIXTO" },
+            { id: "capilares", nombre: "Capilares", icono: "🧪", buenEstado: 0, malEstado: 2, color: "#329df0", marca: "Frascos", serial: "NUEVO" },
+            { id: "capsulas_porcelana", nombre: "Cápsulas de Porcelana", icono: "🥣", buenEstado: 0, malEstado: 5, color: "#d94136", marca: "75mm", serial: "NUEVO" },
+            { id: "condensadores_vidrio", nombre: "Condensadores de Vidrio", icono: "🧪", buenEstado: 8, malEstado: 0, color: "#7a4ed7", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "crisoles", nombre: "Crisoles", icono: "🏺", buenEstado: 4, malEstado: 0, color: "#29b867", marca: "Con tapa / Sin tapa", serial: "ANTIGUO" },
+            { id: "churrasco", nombre: "Churrasco (Escobillas)", icono: "🧹", buenEstado: 12, malEstado: 0, color: "#329df0", marca: "Limpieza", serial: "ESTÁNDAR" },
+            { id: "dinamometro", nombre: "Dinamómetro", icono: "⚙️", buenEstado: 1, malEstado: 0, color: "#f5a623", marca: "Medición", serial: "ANTIGUO" },
+            { id: "embudos_decantacion", nombre: "Embudos de Decantación", icono: "🧪", buenEstado: 5, malEstado: 2, color: "#7a4ed7", marca: "Vidrio", serial: "MIXTO" },
+            { id: "embudos_separacion", nombre: "Embudos de Separación", icono: "🧪", buenEstado: 9, malEstado: 2, color: "#29b867", marca: "Vidrio / Plástico", serial: "MIXTO" },
+            { id: "erlenmeyer", nombre: "Erlenmeyer", icono: "⚗️", buenEstado: 15, malEstado: 0, color: "#329df0", marca: "100ml / 250ml", serial: "ANTIGUO" },
+            { id: "escarpelo", nombre: "Escarpelos", icono: "🔪", buenEstado: 0, malEstado: 10, color: "#d94136", marca: "Bisturí", serial: "NUEVO" },
+            { id: "espatula_diseccion", nombre: "Espátulas de Disección", icono: "🪚", buenEstado: 5, malEstado: 0, color: "#7a4ed7", marca: "Estándar", serial: "ANTIGUO" },
+
+            // --- Página 1 ---
+            { id: "espatulas", nombre: "Espátulas generales", icono: "🧪", buenEstado: 11, malEstado: 0, color: "#29b867", marca: "Metal / Plástico", serial: "ANTIGUO" },
+            { id: "fusiles_microscopio", nombre: "Fusiles microscopio y Lente", icono: "🔬", buenEstado: 1, malEstado: 4, color: "#f5a623", marca: "6v 20w", serial: "MIXTO" },
+            { id: "goteros", nombre: "Goteros", icono: "💧", buenEstado: 6, malEstado: 0, color: "#329df0", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "grabillas", nombre: "Gradillas", icono: "🪟", buenEstado: 7, malEstado: 4, color: "#7a4ed7", marca: "Redondas / Estándar", serial: "MIXTO" },
+            { id: "grameras", node: "grameras", nombre: "Grameras", icono: "⚖️", buenEstado: 3, malEstado: 0, color: "#29b867", marca: "Digital / Análoga", serial: "ANTIGUO" },
+            { id: "lentes_repuesto", nombre: "Lentes microscopio repuestos", icono: "🔍", buenEstado: 0, malEstado: 5, color: "#d94136", marca: "Óptica", serial: "NUEVO" },
+            { id: "lupas", nombre: "Lupas", icono: "🔍", buenEstado: 0, malEstado: 15, color: "#f5a623", marca: "Aumento", serial: "NUEVO" },
+            { id: "mallas_calentamiento", nombre: "Mallas de calentamiento", icono: "🕸️", buenEstado: 0, malEstado: 10, color: "#d94136", marca: "Asbesto / Metal", serial: "NUEVO" },
+            { id: "manguera", nombre: "Manguera (Metros)", icono: "Status", buenEstado: 0, malEstado: 1, color: "#329df0", marca: "10 Metros", serial: "NUEVO" },
+            { id: "mechero_alcohol", nombre: "Mechero de alcohol", icono: "🔥", buenEstado: 14, malEstado: 0, color: "#29b867", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "mechero_bunsen", nombre: "Mechero Bunsen", icono: "💥", buenEstado: 0, malEstado: 8, color: "#d94136", marca: "Gas", serial: "NUEVO" },
+            { id: "morteros", nombre: "Morteros y Mazos", icono: "🥣", buenEstado: 27, malEstado: 15, color: "#7a4ed7", marca: "Porcelana (15 mazos)", serial: "ESTÁNDAR" },
+            { id: "papel_filtro", nombre: "Papel Filtro (Cajas)", icono: "🧻", buenEstado: 3, malEstado: 0, color: "#329df0", marca: "Filtración", serial: "CAJAS" },
+            { id: "pinzas_crisol", nombre: "Pinzas de Crisol", icono: "✂️", buenEstado: 4, malEstado: 0, color: "#f5a623", marca: "Metal", serial: "ESTÁNDAR" },
+            { id: "pinzas_tubo", nombre: "Pinzas tubo de ensayo", icono: "🧪", buenEstado: 18, malEstado: 0, color: "#29b867", marca: "Madera / Metal", serial: "ANTIGUO" },
+            { id: "pinzas_nuez", nombre: "Pinzas de Nuez", icono: "🔧", buenEstado: 14, malEstado: 0, color: "#7a4ed7", marca: "Soporte", serial: "ESTÁNDAR" },
+            { id: "pipetas", nombre: "Pipetas", icono: "🧪", buenEstado: 17, malEstado: 0, color: "#329df0", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "portaobjetos", nombre: "Portaobjetos (Caja)", icono: "🔬", buenEstado: 1, malEstado: 0, color: "#29b867", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "prisma", nombre: "Prisma", icono: "💎", buenEstado: 1, malEstado: 0, color: "#f5a623", marca: "Óptica", serial: "ESTÁNDAR" },
+            { id: "probetas", nombre: "Probetas", icono: "🧪", buenEstado: 26, malEstado: 0, color: "#329df0", marca: "50ml(11), 100ml(7), 250ml(8)", serial: "ESTÁNDAR" },
+            { id: "soporte_universal", nombre: "Soporte Universal", icono: "🗼", buenEstado: 11, malEstado: 0, color: "#7a4ed7", marca: "Metal", serial: "ANTIGUO" },
+            { id: "termometro", nombre: "Termómetro", icono: "🌡️", buenEstado: 12, malEstado: 5, color: "#d94136", marca: "Vidrio / Mercurio", serial: "MIXTO" },
+            { id: "tubos_ensayo", nombre: "Tubos de Ensayo", icono: "🧪", buenEstado: 102, malEstado: 5, color: "#29b867", marca: "Normales(93), Aforados(9), Desprend.(5)", serial: "MIXTO" },
+            { id: "tubos_vidrio_conectores", nombre: "Tubos de Vidrio Conectores", icono: "🧪", buenEstado: 7, malEstado: 0, color: "#329df0", marca: "Grandes(3), Pequeños(4)", serial: "ANTIGUO" },
+            { id: "tripodes", nombre: "Trípodes", icono: "🔺", buenEstado: 7, malEstado: 5, color: "#f5a623", marca: "Soporte Metal", serial: "MIXTO" },
+            { id: "vasos_precipitado", nombre: "Vasos de Precipitado (Vidrio)", icono: "🥛", buenEstado: 1, malEstado: 41, color: "#7a4ed7", marca: "50ml a 1000ml", serial: "MIXTO" },
+
+            // --- Página 3 ---
+            { id: "vasos_plastico", nombre: "Vasos de Precipitado Plásticos", icono: "🥛", buenEstado: 1, malEstado: 5, color: "#329df0", marca: "100ml, 250ml, 950ml", serial: "MIXTO" },
+            { id: "vidrio_reloj", nombre: "Vidrio Reloj", icono: "盤", buenEstado: 1, malEstado: 0, color: "#29b867", marca: "Vidrio", serial: "ANTIGUO" },
+            { id: "xilon_microscopio", nombre: "Xilón Microscopio", icono: "🧪", buenEstado: 4, malEstado: 0, color: "#f5a623", marca: "Reactivo", serial: "ESTÁNDAR" }
+        ];
+
+        let inventario = JSON.parse(localStorage.getItem('inventario_laboratorio')) || inventarioInicial;
+        let objetoActualId = null;
+
+        const contenedorCards = document.getElementById('contenedorCards');
+        const modal = document.getElementById('modalInventario');
+        const modalContent = document.getElementById('modalContent');
+        const lblObjeto = document.getElementById('lblObjeto');
+        const lblMarca = document.getElementById('lblMarca');
+        const lblSerial = document.getElementById('lblSerial');
+        const lblBuenEstado = document.getElementById('lblBuenEstado');
+        const lblMalEstado = document.getElementById('lblMalEstado');
+
+        function renderizarCards() {
+            contenedorCards.innerHTML = '';
+            inventario.forEach(obj => {
+                const total = obj.buenEstado + obj.malEstado;
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                // Efecto hover dinámico por código utilizando el color de acento asignado
+                card.onmouseenter = () => {
+                    card.style.boxShadow = `0 20px 45px rgba(0,0,0,0.5), 0 0 15px 3px ${obj.color}33`;
+                    card.style.borderColor = obj.color;
+                };
+                card.onmouseleave = () => {
+                    card.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
+                    card.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                };
+
+                // Línea superior decorativa
+                const lineaSuperior = document.createElement('div');
+                lineaSuperior.style.position = 'absolute';
+                lineaSuperior.style.top = '0';
+                lineaSuperior.style.left = '0';
+                lineaSuperior.style.width = '100%';
+                lineaSuperior.style.height = '4px';
+                lineaSuperior.style.background = obj.color;
+                card.appendChild(lineaSuperior);
+
+                const botonEliminarHTML = elRolEsAlumno ? '' : `<button class="btn-eliminar-card" title="Eliminar" onclick="eliminarObjeto('${obj.id}', event)">🗑</button>`;
+
+                card.innerHTML += `
+                    ${botonEliminarHTML}
+                    <div class="icono">${obj.icono}</div>
+                    <h2>${obj.nombre}</h2>
+                    <div class="numero" style="color: ${obj.color};">${total}</div>
+                    <button class="btn" onclick="abrirModal('${obj.id}')">Mirar dentro</button>
+                `;
+
+                // Aplicar estilos y hovers específicos al botón de la tarjeta
+                const botonCard = card.querySelector('.btn');
+                botonCard.style.border = `2px solid ${obj.color}`;
+                botonCard.style.color = obj.color;
+                
+                botonCard.onmouseenter = () => {
+                    botonCard.style.background = obj.color;
+                    botonCard.style.color = '#ffffff';
+                    botonCard.style.boxShadow = `0 0 15px ${obj.color}`;
+                };
+                botonCard.onmouseleave = () => {
+                    botonCard.style.background = 'transparent';
+                    botonCard.style.color = obj.color;
+                    botonCard.style.boxShadow = 'none';
+                };
+
+                contenedorCards.appendChild(card);
+            });
+        }
+
+        function verificarRol() {
+            if (elRolEsAlumno) {
+                document.getElementById('subtituloPanel').innerText = "Vista de consulta para Alumnos (Modo Lectura)";
+                const elementosAdmin = document.querySelectorAll('.solo-admin');
+                elementosAdmin.forEach(elemento => {
+                    elemento.classList.add('ocultar-elemento');
+                });
+            }
+        }
+
+        function guardarDatos() {
+            localStorage.setItem('inventario_laboratorio', JSON.stringify(inventario));
+            renderizarCards();
+        }
+
+        function abrirModal(id) {
+            const obj = inventario.find(item => item.id === id);
+            if (!obj) return;
+
+            objetoActualId = id;
+            lblObjeto.innerText = obj.nombre;
+            lblMarca.innerText = obj.marca || "Sin especificar";
+            lblSerial.innerText = obj.serial || "Sin registro";
+            lblBuenEstado.innerText = obj.buenEstado;
+            lblMalEstado.innerText = obj.malEstado;
+            
+            modalContent.style.borderColor = obj.color;
+            modalContent.style.boxShadow = `0 0 40px ${obj.color}40`; 
+            lblObjeto.style.color = obj.color;
+
+            modal.classList.add('active');
+        }
+
+        function cerrarModal() {
+            modal.classList.remove('active');
+            objetoActualId = null;
+        }
+
+        function editarPropiedad(tipo) {
+            if (elRolEsAlumno) return;
+            const obj = inventario.find(item => item.id === objetoActualId);
+            if (!obj) return;
+
+            if (tipo === 'marca') {
+                const nuevaMarca = prompt(`Introduce Capacidad/Tipo para: ${obj.nombre}`, obj.marca || "");
+                if (nuevaMarca !== null) {
+                    obj.marca = nuevaMarca.trim() === "" ? "Sin especificar" : nuevaMarca.trim();
+                    lblMarca.innerText = obj.marca;
+                }
+            } else if (tipo === 'serial') {
+                const nuevoSerial = prompt(`Introduce Lote/Serial de referencia para: ${obj.nombre}`, obj.serial || "");
+                if (nuevoSerial !== null) {
+                    obj.serial = nuevoSerial.trim() === "" ? "Sin registro" : nuevoSerial.trim();
+                    lblSerial.innerText = obj.serial;
+                }
+            }
+            guardarDatos();
+        }
+
+        function cambiarCantidad(tipo, cambio) {
+            if (elRolEsAlumno) return;
+            const obj = inventario.find(item => item.id === objetoActualId);
+            if (!obj) return;
+
+            if (tipo === 'buen') {
+                obj.buenEstado = Math.max(0, obj.buenEstado + cambio);
+                lblBuenEstado.innerText = obj.buenEstado;
+            } else if (tipo === 'mal') {
+                obj.malEstado = Math.max(0, obj.malEstado + cambio);
+                lblMalEstado.innerText = obj.malEstado;
+            }
+            guardarDatos();
+        }
+
+        function agregarNuevoObjeto() {
+            if (elRolEsAlumno) return;
+            const nombre = prompt("Nombre del nuevo material de laboratorio:");
+            if (!nombre) return;
+
+            const icono = prompt("Emoji representativo (ej: 🧫, 🧪, 🔬):", "🧪") || "🧪";
+            const buenEstado = parseInt(prompt("Cantidad de elementos en Buen Estado:", "0")) || 0;
+            const malEstado = parseInt(prompt("Cantidad de elementos en Mal Estado / Defectuosos:", "0")) || 0;
+            const marca = prompt("Capacidad o Tipo de producto:", "N/A") || "N/A";
+            const serial = prompt("Código de lote, material o serie:", "N/A") || "N/A";
+            
+            const colores = ['#329df0', '#7a4ed7', '#29b867', '#f5a623', '#d94136'];
+            const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+            const nuevoId = nombre.toLowerCase().replace(/\s+/g, '_') + Date.now();
+
+            inventario.push({
+                id: nuevoId, nombre, icono, buenEstado, malEstado, color: colorAleatorio, marca, serial
+            });
+
+            guardarDatos();
+        }
+
+        function eliminarObjeto(id, event) {
+            if (elRolEsAlumno) return;
+            if (event) event.stopPropagation();
+            const obj = inventario.find(item => item.id === id);
+            if (confirm(`¿Seguro que deseas eliminar el elemento "${obj.nombre}" del registro del laboratorio?`)) {
+                inventario = inventario.filter(item => item.id !== id);
+                guardarDatos();
+            }
+        }
+
+        function eliminarObjetoDesdeModal() {
+            if (elRolEsAlumno) return;
+            if (objetoActualId) {
+                const idAEliminar = objetoActualId;
+                cerrarModal();
+                eliminarObjeto(idAEliminar, null);
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
+
+        // Ejecución inicial del entorno de componentes
+        renderizarCards();
+        verificarRol();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Inventario Físico - San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left,#1e3a8a33,transparent 30%), #020817;
+            color: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .report-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            border-radius: 30px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-area h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #2563eb, #a855f7);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+
+        .header-area p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .meta-info {
+            text-align: right;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .qr-select {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-refresh {
+            background: rgba(37, 99, 235, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-refresh:hover {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .instruction {
+            font-size: 13px;
+            color: #3b82f6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* TABLA EDITABLE */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: #0f172a;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .editable-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .editable-table th, .editable-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .editable-table th {
+            background: rgba(255, 255, 255, 0.04);
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .editable-table td[contenteditable="true"] {
+            background: rgba(37, 99, 235, 0.03);
+            outline: none;
+            cursor: cell;
+            transition: background 0.2s;
+        }
+
+        .editable-table td[contenteditable="true"]:focus {
+            background: rgba(37, 99, 235, 0.12);
+            border-bottom: 2px solid #2563eb;
+        }
+
+        /* BOTONES */
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* REGLAS DE IMPRESIÓN (PDF LIMPIO) */
+        @media print {
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .report-container { border: none !important; padding: 0 !important; background: transparent !important; box-shadow: none !important; max-width: 100% !important; }
+            .qr-select, .btn-refresh, .instruction, .actions { display: none !important; }
+            .header-area h1 { color: black !important; background: none !important; -webkit-text-fill-color: currentcolor !important; }
+            .header-area p, .meta-info { color: #555 !important; }
+            .table-wrapper { border: 1px solid #000 !important; background: transparent !important; }
+            .editable-table th { background: #f3f4f6 !important; color: black !important; border-bottom: 2px solid black !important; }
+            .editable-table td { color: black !important; border-bottom: 1px solid #ccc !important; background: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="report-container">
+        <div class="header-area">
+            <div>
+                <h1 id="report-title">Reporte de Inventario</h1>
+                <p>INSTITUCION EDUCATIVA TECNICA SAN NICOLAS</p>
+            </div>
+            <div class="meta-info">
+                <p><strong>Documento:</strong> Interno Oficial</p>
+                <p id="report-date">Fecha: --/--/----</p>
+            </div>
+        </div>
+
+        <!-- Selector con todos los espacios disponibles -->
+        <div class="controls-row">
+            <select id="report-select-places" class="qr-select" onchange="cargarDatosSalon()">
+                <option value="" disabled selected>Selecciona un salón o espacio...</option>
+                <option value="salon1">Salón 1</option>
+                <option value="salon2">Salón 2</option>
+                <option value="salon3">Salón 3</option>
+                <option value="salon4">Salón 4</option>
+                <option value="salon5">Salón 5</option>
+                <option value="salon6">Salón 6</option>
+                <option value="salon7">Salón 7</option>
+                <option value="salon8">Salón 8</option>
+                <option value="salon9">Salón 9</option>
+                <option value="polivalente">Polivalente</option>
+                <option value="restaurante">Restaurante</option>
+                <option value="informatica">Sala de Informática</option>
+                <option value="profesores">Sala de Profesores</option>
+                <option value="tecnica">Sala Técnica</option>
+                <option value="laboratorio">Laboratorio</option>
+            </select>
+            <button class="btn-refresh" onclick="sincronizarYActualizar()">🔄 Actualizar Datos</button>
+        </div>
+
+        <div class="instruction">
+            💡 <span>Puedes hacer clic en cualquier celda de la tabla para editar los textos o las cantidades antes de imprimir.</span>
+        </div>
+
+        <!-- Tabla de Contenidos -->
+        <div class="table-wrapper">
+            <table class="editable-table">
+                <thead>
+                    <tr>
+                        <th>Recurso / Elemento del Espacio</th>
+                        <th style="width: 150px; text-align: center;">Cantidad</th>
+                        <th>Estado Actual</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #94a3b8; padding: 30px;">Por favor, selecciona un espacio en el menú superior para estructurar el reporte.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="actions">
+            <a href="salones.html" class="btn btn-secondary">⬅️ Volver a Salones</a>
+            <button class="btn btn-primary" onclick="imprimirReporte()">🖨️ Imprimir / Guardar PDF</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('report-date').innerText = "Fecha: " + new Date().toLocaleDateString();
+
+        function cargarDatosSalon() {
+            const select = document.getElementById('report-select-places');
+            const idSalon = select.value;
+            if (!idSalon) return;
+
+            const nombreSalon = select.options[select.selectedIndex].text;
+            document.getElementById('report-title').innerText = `Reporte: ${nombreSalon}`;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let itemsParaMostrar = [];
+
+            // 1. Intentar leer desde el almacenamiento general unificado 'sanNicolasReportes'
+            const datosGuardados = JSON.parse(localStorage.getItem('sanNicolasReportes'));
+
+            if (datosGuardados && datosGuardados[idSalon] && datosGuardados[idSalon].objetos) {
+                const dataSalon = datosGuardados[idSalon];
+                for (let i = 0; i < dataSalon.objetos.length; i++) {
+                    itemsParaMostrar.push({
+                        item: dataSalon.objetos[i],
+                        cant: dataSalon.cantidades[i].toString(),
+                        est: 'Operativo / Buen estado'
+                    });
+                }
+            } else {
+                // 2. Si no hay datos ahí, respaldar con los elementos por defecto para cada espacio
+                const baseGeneral = {
+                    salon1: [ {item: 'Mesas', cant: '16', est: 'Operativo'}, {item: 'Sillas', cant: '32', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '3', est: 'Operativo'} ],
+                    salon2: [ {item: 'Mesas', cant: '15', est: 'Operativo'}, {item: 'Sillas', cant: '30', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '2', est: 'Operativo'} ],
+                    salon3: [ {item: 'Mesas', cant: '18', est: 'Operativo'}, {item: 'Sillas', cant: '36', est: 'Operativo'}, {item: 'Proyector', cant: '1', est: 'Operativo'}, {item: 'Aires Ac.', cant: '2', est: 'Operativo'} ],
+                    salon4: [ {item: 'Mesas', cant: '15', est: 'Operativo'}, {item: 'Sillas', cant: '28', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '3', est: 'Operativo'} ],
+                    salon5: [ {item: 'Mesas', cant: '16', est: 'Operativo'}, {item: 'Sillas', cant: '31', est: 'Operativo'}, {item: 'Proyector', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '2', est: 'Operativo'} ],
+                    salon6: [ {item: 'Mesas', cant: '14', est: 'Operativo'}, {item: 'Sillas', cant: '28', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Aires Ac.', cant: '1', est: 'Operativo'} ],
+                    salon7: [ {item: 'Mesas', cant: '16', est: 'Operativo'}, {item: 'Sillas', cant: '32', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '3', est: 'Operativo'} ],
+                    salon8: [ {item: 'Mesas', cant: '15', est: 'Operativo'}, {item: 'Sillas', cant: '30', est: 'Operativo'}, {item: 'Proyector', cant: '1', est: 'Operativo'}, {item: 'Ventiladores', cant: '2', est: 'Operativo'} ],
+                    salon9: [ {item: 'Mesas', cant: '17', est: 'Operativo'}, {item: 'Sillas', cant: '34', est: 'Operativo'}, {item: 'Televisor', cant: '1', est: 'Operativo'}, {item: 'Aires Ac.', cant: '2', est: 'Operativo'} ],
+                    polivalente: [ {item: 'Sillas Evento', cant: '120', est: 'Operativo'}, {item: 'Sonido', cant: '4', est: 'Operativo'}, {item: 'Luces', cant: '12', est: 'Operativo'}, {item: 'Tarimas', cant: '6', est: 'Operativo'}, {item: 'Micrófonos', cant: '8', est: 'Operativo'} ],
+                    restaurante: [ {item: 'Mesas Comedor', cant: '20', est: 'Operativo'}, {item: 'Sillas', cant: '80', est: 'Operativo'}, {item: 'Estufas Ind.', cant: '2', est: 'Operativo'}, {item: 'Neveras', cant: '3', est: 'Operativo'} ],
+                    informatica: [ {item: 'Computadores', cant: '40', est: 'Operativo'}, {item: 'Sillas Erg.', cant: '42', est: 'Operativo'}, {item: 'Switches Red', cant: '3', est: 'Operativo'}, {item: 'Aires Ac.', cant: '2', est: 'Operativo'} ],
+                    profesores: [ {item: 'Escritorios', cant: '10', est: 'Operativo'}, {item: 'Sofás', cant: '3', est: 'Operativo'}, {item: 'Computadores', cant: '5', est: 'Operativo'}, {item: 'Casilleros', cant: '20', est: 'Operativo'} ],
+                    tecnica: [ {item: 'Impresoras 3D', cant: '4', est: 'Operativo'}, {item: 'Herramientas', cant: '50', est: 'Operativo'}, {item: 'PCs Desarrollo', cant: '12', est: 'Operativo'}, {item: 'Osciloscopios', cant: '6', est: 'Operativo'} ],
+                    laboratorio: [
+                        {item: 'Agitadores de Vidrio', cant: '10', est: 'Operativo'},
+                        {item: 'Aros de Soporte Universal', cant: '2', est: 'Operativo'},
+                        {item: 'Balanzas de Triple Brazo', cant: '2', est: 'Operativo'},
+                        {item: 'Balones de Vidrio con Desprendimiento', cant: '15', est: 'Operativo'},
+                        {item: 'Balones de Vidrio Planos', cant: '14', est: 'Operativo'},
+                        {item: 'Cucharas de Combustión', cant: '10', est: 'Operativo'},
+                        {item: 'Cajas de Disección', cant: '15', est: 'Operativo'},
+                        {item: 'Cajas de Cubreobjetos', cant: '1', est: 'Operativo'},
+                        {item: 'Cajas de Petri', cant: '16', est: 'Operativo'},
+                        {item: 'Capilares', cant: '2', est: 'Operativo'},
+                        {item: 'Cápsulas de Porcelana', cant: '5', est: 'Operativo'},
+                        {item: 'Condensadores de Vidrio', cant: '8', est: 'Operativo'},
+                        {item: 'Crisoles', cant: '4', est: 'Operativo'},
+                        {item: 'Churrasco (Escobillas)', cant: '12', est: 'Operativo'},
+                        {item: 'Dinamómetro', cant: '1', est: 'Operativo'},
+                        {item: 'Embudos de Decantación', cant: '7', est: 'Operativo'},
+                        {item: 'Embudos de Separación', cant: '11', est: 'Operativo'},
+                        {item: 'Erlenmeyer', cant: '15', est: 'Operativo'},
+                        {item: 'Escarpelos', cant: '10', est: 'Operativo'},
+                        {item: 'Espátulas de Disección', cant: '5', est: 'Operativo'}
+                    ]
+                };
+                itemsParaMostrar = baseGeneral[idSalon] || [];
+            }
+
+            itemsParaMostrar.forEach(data => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td contenteditable="true"><strong>${data.item}</strong></td>
+                    <td contenteditable="true" style="text-align: center;">${data.cant}</td>
+                    <td contenteditable="true">${data.est}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function sincronizarYActualizar() {
+            const select = document.getElementById('report-select-places');
+            if (!select.value) {
+                alert("Selecciona primero un espacio.");
+                return;
+            }
+            cargarDatosSalon();
+            const btn = document.querySelector('.btn-refresh');
+            btn.innerHTML = "✅ ¡Actualizado!";
+            setTimeout(() => {
+                btn.innerHTML = "🔄 Actualizar Datos";
+            }, 1500);
+        }
+
+        window.addEventListener('focus', function() {
+            const select = document.getElementById('report-select-places');
+            if (select.value) {
+                cargarDatosSalon();
+            }
+        });
+
+        function imprimirReporte() {
+            const select = document.getElementById('report-select-places');
+            if (!select.value) {
+                alert("Por favor, selecciona primero un salón para generar un reporte válido.");
+                return;
+            }
+            window.print();
+        }
+    </script>
+</body>
+</html>

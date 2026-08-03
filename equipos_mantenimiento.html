@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario San Nicolás - Gestión de Mantenimiento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body{ background: radial-gradient(circle at top left,#1e3a8a33,transparent 30%), radial-gradient(circle at bottom right,#7c3aed33,transparent 30%), #020817; color:white; display:flex; min-height:100vh; overflow-x:hidden; }
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{ width:270px; background:rgba(6,18,38,0.85); backdrop-filter:blur(18px); border-right:1px solid rgba(255,255,255,0.08); padding:20px 15px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 0 40px rgba(37,99,235,0.15); }
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+        .menu{ margin-top:35px; }
+        .menu a{ display:flex; align-items:center; gap:12px; padding:15px; border-radius:16px; color:white; text-decoration:none; margin-bottom:12px; transition:0.3s; font-weight:500; }
+        .menu a:hover, .menu .active{ background:linear-gradient(90deg,#2563eb,#7c3aed); transform:translateX(5px); box-shadow:0 0 20px rgba(37,99,235,0.4); }
+
+        /* ESTILOS ADMINISTRADOR */
+        .bottom-box { position: relative; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-top: auto; }
+        .user-avatar { width: 40px; height: 40px; background: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .user-info h4 { font-size: 14px; }
+        .user-info p { font-size: 10px; color: #94a3b8; }
+        .arrow-up { margin-left: auto; font-size: 10px; }
+        .user-dropdown { display: none; position: absolute; bottom: 85px; left: 0; width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 100; }
+        .user-dropdown a { display: block; padding: 8px; color: white; text-decoration: none; font-size: 13px; }
+        .user-dropdown a:hover { background: rgba(255,255,255,0.05); }
+
+        /* MAIN */
+        .main{ flex:1; padding:30px; display: flex; flex-direction: column; gap: 25px; }
+        .topbar{ display:flex; justify-content:space-between; align-items:center; }
+        .title h1{ font-size: 42px; font-weight: 800; background: linear-gradient(90deg, #2563eb, #a855f7); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+        .title p{ color:#94a3b8; margin-top:5px; }
+        .btn-regresar { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 12px 22px; border-radius: 14px; cursor: pointer; font-weight: 600; transition: 0.3s; text-decoration: none; }
+        .btn-regresar:hover { background: #2563eb; border-color: #2563eb; }
+        .panel { background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:24px; padding:25px; border:1px solid rgba(255,255,255,0.05); }
+        .panel h2 { font-size: 20px; margin-bottom: 20px; color: #f3f4f6; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 13px; color: #94a3b8; font-weight: 500; }
+        .form-group input, .form-group select { background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { border-color: #2563eb; }
+        .btn-guardar { background: linear-gradient(90deg,#2563eb,#7c3aed); color: white; border: none; padding: 13px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-guardar:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(37,99,235,0.4); }
+        .filter-tags { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tag { padding: 8px 16px; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: 0.3s; font-size: 13px; }
+        .tag.active, .tag:hover { background: #2563eb; border-color: #2563eb; color: white; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        th { color: #94a3b8; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+        td { font-size: 14px; color: #cbd5e1; }
+        .chip { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .chip-computer { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+        .chip-tv { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .chip-other { background: rgba(234, 179, 8, 0.15); color: #fde047; }
+        .actions { display: flex; gap: 8px; }
+        .btn-action { border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-edit { background: rgba(234, 179, 8, 0.15); color: #fde047; }
+        .btn-edit:hover { background: #eab308; color: black; }
+        .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .btn-delete:hover { background: #ef4444; color: white; }
+
+        @media(max-width:768px){ body { flex-direction: column; } .sidebar { width: 100%; } .topbar { flex-direction: column; align-items: flex-start; gap: 15px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+            <div class="menu">
+                <a href="index.html">🏠 Inicio</a>
+                <a href="inventario.html">📦 Inventario</a>
+                <a href="salones.html" >🏫 Salones</a>
+                <a href="reportes.html">📊 Reportes</a>
+                <a href="equipos_mantenimiento.html" class="active">🛠 Mantenimiento</a>
+                <a href="usuarios.html">👨‍💻 Usuarios</a>
+                <a href="historial.html">📜 Historial</a>
+                <a href="configuracion.html">⚙ Configuración</a>
+            </div>
+        </div>
+
+        <div class="bottom-box" id="user-menu-trigger" onclick="toggleUserMenu(event)">
+            <div class="user-avatar">AN</div>
+            <div class="user-info">
+                <h4>Administrador</h4>
+                <p>admin@sanicolas.edu.co</p>
+            </div>
+            <span class="arrow-up">▲</span>
+            <div class="user-dropdown" id="user-dropdown-menu">
+                <a href="perfil.html">👤 Mi Perfil</a>
+                <a href="ayuda.html">❓ Soporte Técnico</a>
+                <hr style="border: 1px solid rgba(255,255,255,0.05); margin: 5px 0;">
+                <a href="login.html" style="color: #f87171 !important;">🚪 Cerrar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title">
+                <h1>EQUIPOS EN Mantenimiento</h1>
+                <p>Añade, edita y elimina registros tecnológicos del taller en tiempo real.</p>
+            </div>
+            <a href="salones.html" class="btn-regresar">🡨 Volver a Salones</a>
+        </div>
+
+        <div class="panel">
+            <h2 id="form-title">➕ Registrar Nuevo Equipo</h2>
+            <form id="maintenance-form">
+                <input type="hidden" id="equip-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input type="text" id="equip-code" placeholder="Ej: SN-PC-102" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="equip-type" required>
+                            <option value="Computador">💻 Computador</option>
+                            <option value="Televisor">📺 Televisores / Pantallas</option>
+                            <option value="Otros">🔌 Otros Dispositivos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Equipo</label>
+                        <input type="text" id="equip-name" placeholder="Ej: Smart TV LG 55" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ubicación</label>
+                        <input type="text" id="equip-location" placeholder="Ej: Salón 4" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Novedad / Daño</label>
+                        <input type="text" id="equip-issue" placeholder="Ej: Pantalla rota" required>
+                    </div>
+                    <button type="submit" class="btn-guardar" id="btn-submit">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>🛠️ Listado de Dispositivos en Reparación</h2>
+            <div class="filter-tags">
+                <div class="tag active" onclick="filtrarEquipos('todos', event)">Todos</div>
+                <div class="tag" onclick="filtrarEquipos('Computador', event)">💻 Computadores</div>
+                <div class="tag" onclick="filtrarEquipos('Televisor', event)">📺 Televisores</div>
+                <div class="tag" onclick="filtrarEquipos('Otros', event)">🔌 Otros</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Tipo</th>
+                            <th>Nombre</th>
+                            <th>Ubicación</th>
+                            <th>Novedad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-equipos"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultEquipos = [
+            { id: "1", code: "SN-PC-048", type: "Computador", name: "Torre HP ProDesk", location: "Sala de Informática", issue: "Fallo de fuente de poder" },
+            { id: "2", code: "SN-TV-012", type: "Televisor", name: "Smart TV LG 55\"", location: "Polivalente", issue: "Líneas en panel LCD" },
+            { id: "3", code: "SN-PR-003", type: "Otros", name: "Proyector Epson X41", location: "Salón 3", issue: "Cambio de lámpara" }
+        ];
+
+        let equipos = JSON.parse(localStorage.getItem('institucion_equipos_mantenimiento')) || defaultEquipos;
+        let filtroActual = 'todos';
+
+        const tabla = document.getElementById('tabla-equipos');
+        const formulario = document.getElementById('maintenance-form');
+
+        // Función para el menú de usuario
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('#user-menu-trigger')) {
+                document.getElementById('user-dropdown-menu').style.display = 'none';
+            }
+        }
+
+        function renderTable() {
+            tabla.innerHTML = '';
+            const listaFiltrada = equipos.filter(eq => filtroActual === 'todos' || eq.type === filtroActual);
+            if(listaFiltrada.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">No hay equipos en esta categoría</td></tr>`;
+                return;
+            }
+            listaFiltrada.forEach(eq => {
+                let chipClass = eq.type === 'Computador' ? 'chip-computer' : (eq.type === 'Televisor' ? 'chip-tv' : 'chip-other');
+                let emoji = eq.type === 'Computador' ? '💻' : (eq.type === 'Televisor' ? '📺' : '🔌');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${eq.code}</td>
+                    <td><span class="chip ${chipClass}">${emoji} ${eq.type}</span></td>
+                    <td>${eq.name}</td>
+                    <td>${eq.location}</td>
+                    <td>${eq.issue}</td>
+                    <td class="actions">
+                        <button class="btn-action btn-edit" onclick="cargarEdicion('${eq.id}')">✏️ Editar</button>
+                        <button class="btn-action btn-delete" onclick="eliminarEquipo('${eq.id}')">🗑️ Borrar</button>
+                    </td>
+                `;
+                tabla.appendChild(tr);
+            });
+        }
+
+        formulario.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('equip-id').value;
+            const code = document.getElementById('equip-code').value;
+            const type = document.getElementById('equip-type').value;
+            const name = document.getElementById('equip-name').value;
+            const location = document.getElementById('equip-location').value;
+            const issue = document.getElementById('equip-issue').value;
+
+            if(id) {
+                equipos = equipos.map(eq => eq.id === id ? { id, code, type, name, location, issue } : eq);
+                document.getElementById('form-title').innerText = "➕ Registrar Nuevo Equipo";
+                document.getElementById('btn-submit').innerText = "Guardar Registro";
+            } else {
+                const nuevoEquipo = { id: Date.now().toString(), code, type, name, location, issue };
+                equipos.push(nuevoEquipo);
+            }
+            actualizarMemoria();
+            formulario.reset();
+            document.getElementById('equip-id').value = '';
+        });
+
+        window.eliminarEquipo = function(id) {
+            if(confirm('¿Seguro que deseas remover este equipo de mantenimiento?')) {
+                equipos = equipos.filter(eq => eq.id !== id);
+                actualizarMemoria();
+            }
+        }
+
+        window.cargarEdicion = function(id) {
+            const eq = equipos.find(eq => eq.id === id);
+            if(!eq) return;
+            document.getElementById('equip-id').value = eq.id;
+            document.getElementById('equip-code').value = eq.code;
+            document.getElementById('equip-type').value = eq.type;
+            document.getElementById('equip-name').value = eq.name;
+            document.getElementById('equip-location').value = eq.location;
+            document.getElementById('equip-issue').value = eq.issue;
+            document.getElementById('form-title').innerText = "✏️ Modificar Registro";
+            document.getElementById('btn-submit').innerText = "Actualizar Registro";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.filtrarEquipos = function(categoria, evento) {
+            filtroActual = categoria;
+            document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('active'));
+            evento.target.classList.add('active');
+            renderTable();
+        }
+
+        function actualizarMemoria() {
+            localStorage.setItem('institucion_equipos_mantenimiento', JSON.stringify(equipos));
+            renderTable();
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>

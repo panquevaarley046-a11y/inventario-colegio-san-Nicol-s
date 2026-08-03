@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body {
+            background: radial-gradient(circle at top left,#1e3a8a33,transparent 30%), radial-gradient(circle at bottom right,#7c3aed33,transparent 30%), #020817;
+            color:white; display:flex; min-height:100vh; overflow-x:hidden;
+        }
+
+        /* SCROLL */
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width:270px; background:rgba(6,18,38,0.85); backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08); padding:20px 15px;
+            display:flex; flex-direction:column; justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo { text-align:center; padding-top: 15px; }
+        .logo img { width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2 { font-size: 30px; font-weight:800; }
+
+        .menu { margin-top:35px; }
+        .menu a { display:flex; align-items:center; gap:12px; padding:15px; border-radius:16px; color:white; text-decoration:none; margin-bottom:12px; transition:0.3s; font-weight:500; }
+        .menu a:hover, .menu .active { background:linear-gradient(90deg,#2563eb,#7c3aed); transform:translateX(5px); box-shadow:0 0 20px rgba(37,99,235,0.4); }
+
+        /* ESTILOS ADMINISTRADOR */
+        .bottom-box { position: relative; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-top: auto; }
+        .user-avatar { width: 40px; height: 40px; background: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .user-info h4 { font-size: 14px; }
+        .user-info p { font-size: 10px; color: #94a3b8; }
+        .arrow-up { margin-left: auto; font-size: 10px; }
+        .user-dropdown { display: none; position: absolute; bottom: 85px; left: 0; width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 100; }
+        .user-dropdown a { display: block; padding: 8px; color: white; text-decoration: none; font-size: 13px; }
+        .user-dropdown a:hover { background: rgba(255,255,255,0.05); }
+
+        /* MAIN */
+        .main { flex:1; padding:30px; display: flex; flex-direction: column; gap: 25px; }
+        .title h1 { font-size: 48px; font-weight: 800; background: linear-gradient(90deg, #a855f7, #6366f1); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+        .layout-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start; }
+        .glass-panel { background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:28px; padding:25px; border:1px solid rgba(255,255,255,0.05); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .glass-panel h2 { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 16px; border-radius: 14px; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        .form-group input:focus, .form-group select:focus { border-color: #7c3aed; box-shadow: 0 0 12px rgba(124, 58, 237, 0.3); }
+        .btn-submit { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(90deg, #2563eb, #7c3aed); color: white; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(37,99,235,0.4); }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+        th { color: #94a3b8; font-size: 14px; font-weight: 600; }
+        .role-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+        .role-badge.superadmin { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .role-badge.administrador { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .role-badge.docente { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .role-badge.mantenimiento { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .btn-delete { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-delete:hover { background: #ef4444; color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        @media(max-width:1100px){ .layout-grid { grid-template-columns: 1fr; } }
+        @media(max-width:768px){ body{ flex-direction:column; } .sidebar{ width:100%; } .title h1{ font-size:36px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+            </div>
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box" id="user-menu-trigger" onclick="toggleUserMenu(event)">
+            <div class="user-avatar">AN</div>
+            <div class="user-info">
+                <h4>Administrador</h4>
+                <p>admin@sanicolas.edu.co</p>
+            </div>
+            <span class="arrow-up">▲</span>
+            <div class="user-dropdown" id="user-dropdown-menu">
+                <a href="perfil.html">👤 Mi Perfil</a>
+                <a href="ayuda.html">❓ Soporte Técnico</a>
+                <hr style="border: 1px solid rgba(255,255,255,0.05); margin: 5px 0;">
+                <a href="login.html" style="color: #f87171 !important;">🚪 Cerrar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="title">
+            <h1>CONTROL DE USUARIOS</h1>
+            <p style="color:#94a3b8; margin-top:5px;">Administración de credenciales, rangos y accesos a la plataforma</p>
+        </div>
+
+        <div class="layout-grid">
+            <div class="glass-panel">
+                <h2>👤 Nuevo Usuario</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="userName">Nombre Completo</label>
+                        <input type="text" id="userName" placeholder="Ej. Juan Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Correo Electrónico</label>
+                        <input type="email" id="userEmail" placeholder="ejemplo@sanicolas.edu.co" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userRole">Rango / Rol de Acceso</label>
+                        <select id="userRole" required>
+                            <option value="superadmin">⚡ Super Administrador</option>
+                            <option value="administrador">🛡️ Administrador</option>
+                            <option value="docente">👨‍🏫 Docente</option>
+                            <option value="mantenimiento">🛠️ Mantenimiento</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Añadir al Sistema</button>
+                </form>
+            </div>
+
+            <div class="glass-panel">
+                <h2>📋 Personal Registrado</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo Institucional</th>
+                                <th>Rango</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr>
+                                <td><strong>Carlos Mendoza</strong></td>
+                                <td>c.mendoza@sanicolas.edu.co</td>
+                                <td><span class="role-badge superadmin">Super Admin</span></td>
+                                <td><button class="btn-delete" onclick="deleteRow(this)">Eliminar</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('#user-menu-trigger')) {
+                document.getElementById('user-dropdown-menu').style.display = 'none';
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const roleSelect = document.getElementById('userRole');
+            const roleValue = roleSelect.value;
+            const roleText = roleSelect.options[roleSelect.selectedIndex].text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+
+            const tableBody = document.getElementById('userTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td>${email}</td>
+                <td><span class="role-badge ${roleValue}">${roleText}</span></td>
+                <td><button class="btn-delete" onclick="deleteRow(this)">Eliminar</button></td>
+            `;
+            tableBody.appendChild(newRow);
+            document.getElementById('userForm').reset();
+        });
+
+        function deleteRow(button) {
+            if (confirm("¿Estás seguro de eliminar a este usuario del sistema?")) {
+                button.parentNode.parentNode.remove();
+            }
+        }
+    </script>
+</body>
+</html>

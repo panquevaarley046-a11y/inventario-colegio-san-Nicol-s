@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario San Nicolás - Reportes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white;
+            display:flex;
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(6,18,38,0.85);
+            backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08);
+            padding:20px 15px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+        
+        .menu{ margin-top:35px; }
+        .menu a{
+            display:flex; align-items:center; gap:12px; padding:15px;
+            border-radius:16px; color:white; text-decoration:none;
+            margin-bottom:12px; transition:0.3s; font-weight:500;
+        }
+        .menu a:hover, .menu .active{
+            background:linear-gradient(90deg,#2563eb,#7c3aed);
+            transform:translateX(5px);
+            box-shadow:0 0 20px rgba(37,99,235,0.4);
+        }
+
+        .bottom-box{
+            background:linear-gradient(135deg,#0f172a,#111827);
+            border-radius:22px; padding:18px; border:1px solid rgba(255,255,255,0.05);
+        }
+        .bottom-box p{ color:#9ca3af; font-size:13px; }
+
+        /* MAIN CONTENT */
+        .main{ flex:1; padding:30px; }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .title h1{
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(90deg, #0906d5, #a855f7);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+        .title p{ color:#94a3b8; margin-top:5px; }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 15px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-3px);
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #1e293b, #2563eb);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-back span {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-back:hover span {
+            transform: translateX(-4px);
+        }
+
+        .selector-container {
+            margin-bottom: 30px;
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 0 25px rgba(37,99,235,0.05);
+        }
+
+        .selector-container label {
+            display: block;
+            margin-bottom: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .selector-container select {
+            background: #0f172a;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 16px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 400px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .selector-container select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 15px rgba(37,99,235,0.3);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-card {
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .chart-card h3 {
+            font-size: 20px;
+            color: #f1f5f9;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-edit {
+            background: rgba(37, 99, 235, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 8, 23, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #0b1329;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 24px;
+            width: 95%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .form-group-flex {
+            flex: 2;
+        }
+
+        .form-group-flex.small {
+            flex: 1;
+        }
+
+        .form-group-flex label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .form-group-flex input {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group-flex input:focus {
+            border-color: #2563eb;
+        }
+
+        .btn-add-item {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px dashed #10b981;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 5px;
+            transition: 0.3s ease;
+        }
+
+        .btn-add-item:hover {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-save, .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+        }
+
+        .btn-save {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        @media(max-width:1200px){
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        @media(max-width:768px){
+            body{ flex-direction:column; }
+            .sidebar{ width:100%; }
+            .header-top { flex-direction: column; align-items: flex-start; }
+            .btn-back { width: 100%; justify-content: center; }
+            .title h1{ font-size:36px; }
+            .form-row { flex-direction: column; gap: 8px; }
+            .form-group-flex { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box">
+            <h4>Administrador</h4>
+            <p>admin@sanicolas.edu.co</p>
+        </div>
+    </div>
+
+    <div class="main">
+        
+        <div class="header-top">
+            <div class="title">
+                <h1>REPORTES POR LUGAR</h1>
+                <p>Estadísticas en tiempo real de los recursos de la institución</p>
+            </div>
+            <a href="salones.html" class="btn-back">
+                <span>←</span> Volver a Salones
+            </a>
+        </div>
+
+        <div class="selector-container">
+            <label for="salonSelect">📍 Selecciona el espacio educativo a analizar:</label>
+            <select id="salonSelect" onchange="actualizarGraficos()">
+                <option value="salon1">👨‍🏫 Salón 1</option>
+                <option value="salon2">👨‍🏫 Salón 2</option>
+                <option value="salon3">👨‍🏫 Salón 3</option>
+                <option value="salon4">👨‍🏫 Salón 4</option>
+                <option value="salon5">👨‍🏫 Salón 5</option>
+                <option value="salon6">👨‍🏫 Salón 6</option>
+                <option value="salon7">👨‍🏫 Salón 7</option>
+                <option value="salon8">👨‍🏫 Salón 8</option>
+                <option value="salon9">👨‍🏫 Salón 9</option>
+                <option value="polivalente">🎭 Polivalente</option>
+                <option value="restaurante">🍽 Restaurante</option>
+                <option value="informatica">💻 Sala de Informática</option>
+                <option value="profesores">👥 Sala de Profesores</option>
+                <option value="tecnica">⚙️ Sala Técnica</option>
+                <option value="laboratorio">🔬 Laboratorio</option>
+            </select>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 id="chartTitle1">Cantidad de Objetos</h3>
+                    <button class="btn-edit" onclick="abrirModal('objetos')">✏️ Modificar / Añadir</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="objetosChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Estado de Operatividad</h3>
+                    <button class="btn-edit" onclick="abrirModal('estados')">✏️ Modificar</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Modificar Datos</h3>
+            <form id="editForm">
+                <div id="dynamicInputs"></div>
+                
+                <button type="button" id="addItemBtn" class="btn-add-item" onclick="agregarNuevaFilaFila()" style="display:none;">
+                    ➕ Agregar Nuevo Recurso
+                </button>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos desde localStorage o usar los valores por defecto si no existen
+        let datosInventario = JSON.parse(localStorage.getItem('sanNicolasReportes')) || {
+            salon1: { nombre: "Salón 1", objetos: ["Mesas", "Sillas", "Televisor", "Ventiladores"], cantidades: [16, 32, 1, 3], estados: [30, 1, 1] },
+            salon2: { nombre: "Salón 2", objetos: ["Mesas", "Sillas", "Televisor", "Ventiladores"], cantidades: [15, 30, 1, 2], estados: [28, 0, 0] },
+            salon3: { nombre: "Salón 3", objetos: ["Mesas", "Sillas", "Proyector", "Aires Ac."], cantidades: [18, 36, 1, 2], estados: [35, 2, 0] },
+            salon4: { nombre: "Salón 4", objetos: ["Mesas", "Sillas", "Televisor", "Ventiladores"], cantidades: [15, 28, 1, 3], estados: [25, 1, 1] },
+            salon5: { nombre: "Salón 5", objetos: ["Mesas", "Sillas", "Proyector", "Ventiladores"], cantidades: [16, 31, 1, 2], estados: [29, 0, 1] },
+            salon6: { nombre: "Salón 6", objetos: ["Mesas", "Sillas", "Televisor", "Aires Ac."], cantidades: [14, 28, 1, 1], estados: [26, 2, 0] },
+            salon7: { nombre: "Salón 7", objetos: ["Mesas", "Sillas", "Televisor", "Ventiladores"], cantidades: [16, 32, 1, 3], estados: [27, 3, 2] },
+            salon8: { nombre: "Salón 8", objetos: ["Mesas", "Sillas", "Proyector", "Ventiladores"], cantidades: [15, 30, 1, 2], estados: [31, 1, 0] },
+            salon9: { nombre: "Salón 9", objetos: ["Mesas", "Sillas", "Televisor", "Aires Ac."], cantidades: [17, 34, 1, 2], estados: [32, 0, 2] },
+            polivalente: { nombre: "Polivalente", objetos: ["Sillas Evento", "Sonido", "Luces", "Tarimas", "Micrófonos"], cantidades: [120, 4, 12, 6, 8], estados: [135, 9, 6] },
+            restaurante: { nombre: "Restaurante", objetos: ["Mesas Comedor", "Sillas", "Estufas Ind.", "Neveras"], cantidades: [20, 80, 2, 3], estados: [98, 4, 3] },
+            informatica: { nombre: "Sala de Informática", objetos: ["Computadores", "Sillas Erg.", "Switches Red", "Aires Ac."], cantidades: [40, 42, 3, 2], estados: [81, 4, 2] },
+            profesores: { nombre: "Sala de Profesores", objetos: ["Escritorios", "Sofás", "Computadores", "Casilleros"], cantidades: [10, 3, 5, 20], estados: [36, 1, 1] },
+            tecnica: { nombre: "Sala Técnica", objetos: ["Impresoras 3D", "Herramientas", "PCs Desarrollo", "Osciloscopios"], cantidades: [4, 50, 12, 6], estados: [65, 5, 2] },
+            laboratorio: { nombre: "Laboratorio", objetos: ["Microscopios", "Mecheros", "Estantes Reactivos", "Bancos"], cantidades: [18, 15, 4, 24], estados: [55, 3, 3] }
+        };
+
+        let chartObjetos;
+        let chartEstado;
+        let tipoEdicionActual = '';
+
+        // Función para guardar los cambios de los reportes en localStorage
+        function guardarReportesEnLocalStorage() {
+            localStorage.setItem('sanNicolasReportes', JSON.stringify(datosInventario));
+        }
+
+        function actualizarGraficos() {
+            const lugarSeleccionado = document.getElementById("salonSelect").value;
+            const data = datosInventario[lugarSeleccionado];
+
+            document.getElementById("chartTitle1").innerText = `Distribución de Objetos - ${data.nombre}`;
+
+            // --- GRÁFICO 1: BARRAS ---
+            if (chartObjetos) chartObjetos.destroy();
+            const ctxObjetos = document.getElementById('objetosChart').getContext('2d');
+            chartObjetos = new Chart(ctxObjetos, {
+                type: 'bar',
+                data: {
+                    labels: data.objetos,
+                    datasets: [{
+                        label: 'Unidades',
+                        data: data.cantidades,
+                        backgroundColor: ['#2563eb', '#7c3aed', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#14b8a6'],
+                        borderRadius: 10,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { color: '#94a3b8', font: { family: 'Poppins' } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        x: { ticks: { color: '#94a3b8', font: { family: 'Poppins' } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- GRÁFICO 2: DONA ---
+            if (chartEstado) chartEstado.destroy();
+            const ctxEstado = document.getElementById('estadoChart').getContext('2d');
+            chartEstado = new Chart(ctxEstado, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Disponibles', 'Mantenimiento', 'Novedades'],
+                    datasets: [{
+                        data: data.estados,
+                        backgroundColor: ['#16a34a', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: '#cbd5e1', font: { family: 'Poppins', size: 13 } } 
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function abrirModal(tipo) {
+            tipoEdicionActual = tipo;
+            const lugarSeleccionado = document.getElementById("salonSelect").value;
+            const data = datosInventario[lugarSeleccionado];
+            const container = document.getElementById("dynamicInputs");
+            const addBtn = document.getElementById("addItemBtn");
+            container.innerHTML = ""; 
+
+            if (tipo === 'objetos') {
+                document.getElementById("modalTitle").innerText = `Editar u Añadir Objetos - ${data.nombre}`;
+                addBtn.style.display = "block"; 
+
+                data.objetos.forEach((objeto, index) => {
+                    container.innerHTML += `
+                        <div class="form-row">
+                            <div class="form-group-flex">
+                                <label>Nombre del Objeto</label>
+                                <input type="text" value="${objeto}" class="edit-name" required>
+                            </div>
+                            <div class="form-group-flex small">
+                                <label>Cantidad</label>
+                                <input type="number" min="0" value="${data.cantidades[index]}" class="edit-value" required>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else if (tipo === 'estados') {
+                document.getElementById("modalTitle").innerText = `Editar Estados - ${data.nombre}`;
+                addBtn.style.display = "none"; 
+                
+                const etiquetasEstados = ['Disponibles', 'Mantenimiento', 'Novedades'];
+                data.estados.forEach((valor, index) => {
+                    container.innerHTML += `
+                        <div class="form-row">
+                            <div class="form-group-flex">
+                                <label>Estado institucional</label>
+                                <input type="text" value="${etiquetasEstados[index]}" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            </div>
+                            <div class="form-group-flex small">
+                                <label>Cantidad</label>
+                                <input type="number" min="0" value="${valor}" class="edit-value" required>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById("editModal").classList.add("active");
+        }
+
+        function agregarNuevaFilaFila() {
+            const container = document.getElementById("dynamicInputs");
+            container.insertAdjacentHTML('beforeend', `
+                <div class="form-row">
+                    <div class="form-group-flex">
+                        <label>Nuevo Objeto</label>
+                        <input type="text" placeholder="Ej: Computador" class="edit-name" required>
+                    </div>
+                    <div class="form-group-flex small">
+                        <label>Cantidad</label>
+                        <input type="number" min="0" value="0" class="edit-value" required>
+                    </div>
+                </div>
+            `);
+            
+            const modalContent = document.querySelector(".modal-content");
+            modalContent.scrollTop = modalContent.scrollHeight;
+        }
+
+        function cerrarModal() {
+            document.getElementById("editModal").classList.remove("active");
+        }
+
+        document.getElementById("editForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const lugarSeleccionado = document.getElementById("salonSelect").value;
+            
+            if (tipoEdicionActual === 'objetos') {
+                const nameInputs = document.querySelectorAll("#dynamicInputs .edit-name");
+                const valueInputs = document.querySelectorAll("#dynamicInputs .edit-value");
+                
+                datosInventario[lugarSeleccionado].objetos = [];
+                datosInventario[lugarSeleccionado].cantidades = [];
+                
+                nameInputs.forEach((input, index) => {
+                    datosInventario[lugarSeleccionado].objetos.push(input.value);
+                    datosInventario[lugarSeleccionado].cantidades.push(parseInt(valueInputs[index].value) || 0);
+                });
+                
+            } else if (tipoEdicionActual === 'estados') {
+                const valueInputs = document.querySelectorAll("#dynamicInputs .edit-value");
+                valueInputs.forEach((input, index) => {
+                    datosInventario[lugarSeleccionado].estados[index] = parseInt(input.value) || 0;
+                });
+            }
+
+            guardarReportesEnLocalStorage(); // Guarda de forma persistente los cambios
+            actualizarGraficos(); 
+            cerrarModal();
+        });
+
+        window.onload = actualizarGraficos;
+    </script>
+</body>
+</html>

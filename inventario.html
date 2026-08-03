@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario San Nicolás - Tabla General</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white;
+            display:flex;
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(6,18,38,0.85);
+            backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08);
+            padding:20px 15px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+        
+        .menu{ margin-top:35px; }
+        .menu a{
+            display:flex; align-items:center; gap:12px; padding:15px;
+            border-radius:16px; color:white; text-decoration:none;
+            margin-bottom:12px; transition:0.3s; font-weight:500;
+        }
+        .menu a:hover, .menu .active{
+            background:linear-gradient(90deg,#2563eb,#7c3aed);
+            transform:translateX(5px);
+            box-shadow:0 0 20px rgba(37,99,235,0.4);
+        }
+
+        .bottom-box{
+            background:linear-gradient(135deg,#0f172a,#111827);
+            border-radius:22px; padding:18px; border:1px solid rgba(255,255,255,0.05);
+        }
+        .bottom-box p{ color:#9ca3af; font-size:13px; }
+
+        /* MAIN CONTENT - TOPBAR OPTIMIZADA */
+        .main{ flex:1; padding:30px; }
+        
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .title h1 {
+            font-size: 38px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #0906d5, #a855f7);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+        
+        .title p { color:#94a3b8; margin-top:2px; font-size: 14px; }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 20px;
+            border-radius: 18px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            height: 51px;
+        }
+
+        .btn-back:hover {
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+            transform: translateX(-3px);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            background: rgba(15,23,42,0.9);
+            padding: 0 20px;
+            border-radius: 18px;
+            width: 340px;
+            height: 51px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 0 25px rgba(37,99,235,0.1);
+        }
+
+        .search-container input {
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .btn-add-inventory {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            height: 51px;
+            padding: 0 24px;
+            border-radius: 18px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transition: 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-add-inventory:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.5);
+        }
+
+        .table-container {
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            border-radius: 30px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inventario-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .inventario-table th {
+            background: rgba(37, 99, 235, 0.1);
+            color: #38bdf8;
+            padding: 16px;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255,255,255,0.08);
+            letter-spacing: 0.5px;
+        }
+
+        .inventario-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .inventario-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: white;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .cat-sillas { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
+        .cat-mesas { background: rgba(124, 58, 237, 0.15); color: #c084fc; border: 1px solid rgba(124, 58, 237, 0.3); }
+        .cat-tecnologia { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .cat-laboratorio { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .cat-restaurante { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .cat-eventos { background: rgba(206, 66, 199, 0.15); color: #f472b6; border: 1px solid rgba(206, 66, 199, 0.3); }
+
+        .status {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .status.ok { color: #4ade80; }
+        .status.maint { color: #facc15; }
+        .status.danger { color: #f87171; }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-table-edit {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-table-edit:hover {
+            background: white;
+            color: #020817;
+        }
+
+        .btn-table-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-table-delete:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 8, 23, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #0b1329;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 24px;
+            width: 95%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 22px;
+            font-size: 22px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #38bdf8;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-save, .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+        }
+
+        .btn-save {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        @media(max-width: 1024px) {
+            .topbar { flex-direction: column; align-items: stretch; }
+            .title-section { flex-direction: row; }
+            .top-actions { width: 100%; }
+            .search-container { flex: 1; width: auto; }
+        }
+
+        @media(max-width: 580px) {
+            .title-section { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .btn-back { width: 100%; justify-content: center; }
+            .top-actions { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box">
+            <h4>Administrador</h4>
+            <p>admin@sanicolas.edu.co</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title-section">
+                <button class="btn-back" onclick="window.history.back()">
+                    ⬅️ Volver
+                </button>
+                <div class="title">
+                    <h1>INVENTARIO GENERAL</h1>
+                    <p>Lista consolidada de activos por secciones y locación</p>
+                </div>
+            </div>
+            
+            <div class="top-actions">
+                <div class="search-container">
+                    <input type="text" id="tableSearch" onkeyup="filtrarTabla()" placeholder="Filtrar por artículo, salón o sección...">
+                </div>
+                <button class="btn-add-inventory" onclick="abrirModalInventario()">
+                    ➕ Agregar Activo
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2 id="totalCounter">📋 Registro de Recursos Activos (0 en total)</h2>
+            
+            <table class="inventario-table" id="tablaActivos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Artículo</th>
+                        <th>Sección / Categoría</th>
+                        <th>Ubicación exacta</th>
+                        <th>Cantidad Total</th>
+                        <th>Estado Operativo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="inventoryModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Registrar Nuevo Activo</h3>
+            <form id="inventoryForm">
+                <input type="hidden" id="editIndex">
+                
+                <div class="form-group">
+                    <label for="inputCodigo">Código</label>
+                    <input type="text" id="inputCodigo" placeholder="Ej: #TEC-106" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputArticulo">Artículo</label>
+                    <input type="text" id="inputArticulo" placeholder="Ej: Televisor Smart LED 55&quot;" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="selectCategoria">Sección / Categoría</label>
+                    <select id="selectCategoria">
+                        <option value="sillas">🪑 Sillas</option>
+                        <option value="mesas">🪵 Mesas</option>
+                        <option value="tecnologia">💻 Tecnología</option>
+                        <option value="laboratorio">🔬 Laboratorio</option>
+                        <option value="restaurante">🍽 Restaurante</option>
+                        <option value="eventos">🎭 Eventos</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputUbicacion">Ubicación Exacta</label>
+                    <input type="text" id="inputUbicacion" placeholder="Ej: Salón 4" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputCantidad">Cantidad Total</label>
+                    <input type="number" id="inputCantidad" placeholder="Ej: 15" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="selectEstado">Estado Operativo</label>
+                    <select id="selectEstado">
+                        <option value="ok">● Operativo</option>
+                        <option value="maint">🔧 Mantenimiento</option>
+                        <option value="danger">⚠️ Novedad Reportada</option>
+                        <option value="calibracion">🔧 Calibración</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModalInventario()">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Activo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos desde localStorage o usar los valores por defecto si está vacío
+        let activosInventario = JSON.parse(localStorage.getItem('sanNicolasInventario')) || [
+            { codigo: "#SL-001", articulo: "Sillas Universitarias", categoria: "sillas", ubicacion: "Salón 1", cantidad: 32, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#SL-002", articulo: "Sillas Universitarias", categoria: "sillas", ubicacion: "Salón 2", cantidad: 30, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#MS-015", articulo: "Mesas de Madera Dobles", categoria: "mesas", ubicacion: "Salón 3", cantidad: 18, estado: "maint", estadoTexto: "🔧 Mantenimiento (2)" },
+            { codigo: "#TEC-102", articulo: "Computadores de Escritorio Core i5", categoria: "tecnologia", ubicacion: "Sala de Informática", cantidad: 40, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#TEC-105", articulo: "Televisor Smart LED 55\"", categoria: "tecnologia", ubicacion: "Salón 6", cantidad: 1, estado: "danger", estadoTexto: "⚠️ Novedad Reportada" },
+            { codigo: "#LAB-301", articulo: "Microscopios Binoculares", categoria: "laboratorio", ubicacion: "Laboratorio", cantidad: 18, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#RES-401", articulo: "Estufas Industriales a Gas", categoria: "restaurante", ubicacion: "Restaurante", cantidad: 2, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#TEC-201", articulo: "Impresoras 3D Ender", categoria: "tecnologia", ubicacion: "Sala Técnica", cantidad: 4, estado: "calibracion", estadoTexto: "🔧 Calibración" },
+            { codigo: "#POL-501", articulo: "Consola de Sonido Yamaha 16Ch", categoria: "eventos", ubicacion: "Polivalente", cantidad: 4, estado: "ok", estadoTexto: "● Operativo" },
+            { codigo: "#MS-022", articulo: "Escritorios de Oficina", categoria: "mesas", ubicacion: "Sala de Profesores", cantidad: 10, estado: "ok", estadoTexto: "● Operativo" }
+        ];
+
+        const categoriasMap = {
+            sillas: { class: 'cat-sillas', texto: '🪑 Sillas' },
+            mesas: { class: 'cat-mesas', texto: '🪵 Mesas' },
+            tecnologia: { class: 'cat-tecnologia', texto: '💻 Tecnología' },
+            laboratorio: { class: 'cat-laboratorio', texto: '🔬 Laboratorio' },
+            restaurante: { class: 'cat-restaurante', texto: '🍽 Restaurante' },
+            eventos: { class: 'cat-eventos', texto: '🎭 Eventos' }
+        };
+
+        // Función para guardar los cambios automáticamente
+        function guardarEnLocalStorage() {
+            localStorage.setItem('sanNicolasInventario', JSON.stringify(activosInventario));
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById("inventoryTableBody");
+            const counter = document.getElementById("totalCounter");
+            tbody.innerHTML = "";
+
+            counter.innerText = `📋 Registro de Recursos Activos (${activosInventario.length} en total)`;
+
+            activosInventario.forEach((item, index) => {
+                let catData = categoriasMap[item.categoria] || { class: 'cat-otros', texto: item.categoria };
+                
+                let statusClass = 'ok';
+                if (item.estado === 'maint' || item.estado === 'calibracion') statusClass = 'maint';
+                if (item.estado === 'danger') statusClass = 'danger';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.codigo}</strong></td>
+                        <td>${item.articulo}</td>
+                        <td><span class="badge ${catData.class}">${catData.texto}</span></td>
+                        <td>${item.ubicacion}</td>
+                        <td>${item.cantidad}</td>
+                        <td><span class="status ${statusClass}">${item.estadoTexto}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-table-edit" onclick="abrirModalInventario(${index})">✏️ Editar</button>
+                                <button class="btn-table-delete" onclick="eliminarActivo(${index})">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function abrirModalInventario(index = null) {
+            const modal = document.getElementById("inventoryModal");
+            const form = document.getElementById("inventoryForm");
+            const title = document.getElementById("modalTitle");
+
+            form.reset();
+
+            if (index !== null) {
+                title.innerText = "Modificar Artículo de Inventario";
+                document.getElementById("editIndex").value = index;
+                document.getElementById("inputCodigo").value = activosInventario[index].codigo;
+                document.getElementById("inputArticulo").value = activosInventario[index].articulo;
+                document.getElementById("selectCategoria").value = activosInventario[index].categoria;
+                document.getElementById("inputUbicacion").value = activosInventario[index].ubicacion;
+                document.getElementById("inputCantidad").value = activosInventario[index].cantidad;
+                document.getElementById("selectEstado").value = activosInventario[index].estado;
+            } else {
+                title.innerText = "Registrar Nuevo Activo";
+                document.getElementById("editIndex").value = "";
+            }
+
+            modal.classList.add("active");
+        }
+
+        function cerrarModalInventario() {
+            document.getElementById("inventoryModal").classList.remove("active");
+        }
+
+        function eliminarActivo(index) {
+            const nombre = activosInventario[index].articulo;
+            if (confirm(`¿Estás seguro de eliminar "${nombre}" del inventario general?`)) {
+                activosInventario.splice(index, 1);
+                guardarEnLocalStorage(); // Actualiza el almacenamiento
+                renderizarTabla();
+            }
+        }
+
+        document.getElementById("inventoryForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const index = document.getElementById("editIndex").value;
+            
+            const selectEst = document.getElementById("selectEstado");
+            const textoEstado = selectEst.options[selectEst.selectedIndex].text;
+
+            const datoActivo = {
+                codigo: document.getElementById("inputCodigo").value,
+                articulo: document.getElementById("inputArticulo").value,
+                categoria: document.getElementById("selectCategoria").value,
+                ubicacion: document.getElementById("inputUbicacion").value,
+                cantidad: parseInt(document.getElementById("inputCantidad").value),
+                estado: selectEst.value,
+                estadoTexto: textoEstado
+            };
+
+            if (index !== "") {
+                activosInventario[parseInt(index)] = datoActivo;
+            } else {
+                activosInventario.push(datoActivo);
+            }
+
+            guardarEnLocalStorage(); // Actualiza el almacenamiento
+            renderizarTabla();
+            cerrarModalInventario();
+        });
+
+        function filtrarTabla() {
+            let filter = document.getElementById("tableSearch").value.toLowerCase();
+            let rows = document.getElementById("inventoryTableBody").getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let show = false;
+                let cells = rows[i].getElementsByTagName("td");
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j] && cells[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                        show = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = show ? "" : "none";
+            }
+        }
+
+        window.onload = renderizarTabla;
+    </script>
+</body>
+</html>

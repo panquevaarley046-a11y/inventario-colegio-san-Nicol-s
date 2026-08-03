@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Programador - San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body{
+            background:
+                radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+                radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+                #020817;
+            color:white; display:flex; min-height:100vh; overflow-x:hidden;
+        }
+        ::-webkit-scrollbar{ width:8px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+        .sidebar{ width:270px; background:rgba(6,18,38,0.85); backdrop-filter:blur(18px); border-right:1px solid rgba(255,255,255,0.08); padding:20px 15px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 0 40px rgba(37,99,235,0.15); position:sticky; top:0; height:100vh; }
+        .logo{ text-align:center; padding-top:15px; }
+        .logo img{ width:150px; height:auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37,99,235,0.7)); }
+        .logo h2{ font-size:26px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:13px; }
+        .menu{ margin-top:30px; margin-left:-15px; margin-right:-15px; }
+        .menu a{ display:flex; align-items:center; gap:12px; padding:13px 30px; border-radius:0; color:white; text-decoration:none; margin-bottom:2px; transition:0.3s; font-weight:500; font-size:14px; }
+        .menu a:hover, .menu a.active{ background:linear-gradient(90deg,#2563eb,#7c3aed); box-shadow:0 4px 15px rgba(37,99,235,0.3); }
+        .bottom-box{ background:linear-gradient(135deg,#0f172a,#111827); border-radius:22px; padding:12px 15px; border:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:12px; cursor:pointer; position:relative; transition:0.3s; }
+        .bottom-box:hover{ background:#1e293b; }
+        .user-avatar{ width:42px; height:42px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; border:2px solid #2563eb; overflow:hidden; }
+        .user-avatar img{ width:100%; height:100%; object-fit:cover; display:none; }
+        .user-info{ flex:1; }
+        .user-info h4{ font-size:14px; font-weight:600; }
+        .user-info p{ color:#9ca3af; font-size:11px; }
+        .arrow-up{ font-size:10px; color:#64748b; }
+        .user-dropdown{ position:absolute; bottom:85px; left:0; width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:10px; box-shadow:0 -10px 25px rgba(0,0,0,0.5); display:none; flex-direction:column; z-index:999; }
+        .user-dropdown a{ padding:10px 14px !important; font-size:13px !important; border-radius:10px !important; margin-bottom:4px !important; display:flex !important; align-items:center; gap:10px; color:white !important; text-decoration:none !important; transition:0.2s; background:transparent !important; box-shadow:none !important; }
+        .user-dropdown a:hover{ background:rgba(255,255,255,0.05) !important; }
+        .main{ flex:1; padding:30px; overflow-y:auto; }
+        .topbar{ margin-bottom:30px; }
+        .title h1{ font-size:42px; font-weight:800; background:linear-gradient(90deg,#10b981,#2563eb); background-clip:text; -webkit-background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+        .title p{ color:#94a3b8; margin-top:5px; font-size:15px; }
+        .tabs{ display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap; }
+        .tab{ padding:10px 22px; border-radius:12px; cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#94a3b8; font-size:13px; font-weight:500; transition:0.3s; }
+        .tab:hover{ background:rgba(16,185,129,0.15); color:white; }
+        .tab.active{ background:linear-gradient(90deg,#10b981,#2563eb); color:white; border-color:transparent; }
+        .seccion{ display:none; }
+        .seccion.visible{ display:block; }
+        .manual-card{ background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:24px; padding:28px; border:1px solid rgba(255,255,255,0.06); margin-bottom:20px; }
+        .manual-card h2{ font-size:20px; font-weight:700; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06); background:linear-gradient(90deg,#10b981,#2563eb); background-clip:text; -webkit-background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+        .manual-card h3{ font-size:15px; font-weight:600; margin:16px 0 8px; color:#34d399; }
+        .manual-card p{ color:#cbd5e1; font-size:14px; line-height:1.8; margin-bottom:10px; }
+        .manual-card ul{ margin-left:20px; }
+        .manual-card li{ color:#cbd5e1; font-size:14px; line-height:1.9; }
+        .code-block{ background:#0a0f1e; border:1px solid rgba(16,185,129,0.2); border-radius:14px; padding:18px; margin:14px 0; font-family:'Courier New',monospace; font-size:13px; color:#34d399; overflow-x:auto; line-height:1.7; }
+        .code-block .comment{ color:#4b6a55; }
+        .code-block .keyword{ color:#60a5fa; }
+        .code-block .string{ color:#fbbf24; }
+        .archivo{ background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.15); border-radius:14px; padding:14px 18px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start; }
+        .archivo-icono{ font-size:22px; }
+        .archivo-info h4{ font-size:14px; font-weight:600; color:#34d399; margin-bottom:3px; }
+        .archivo-info p{ font-size:12px; color:#64748b; margin:0; }
+        .tech-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:14px 0; }
+        .tech-badge{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; text-align:center; }
+        .tech-badge .icon{ font-size:28px; margin-bottom:8px; }
+        .tech-badge h4{ font-size:13px; font-weight:600; margin-bottom:4px; }
+        .tech-badge p{ font-size:11px; color:#64748b; margin:0; }
+        .alerta{ background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:14px 18px; margin-bottom:14px; color:#fbbf24; font-size:13px; display:flex; gap:10px; }
+        .alerta-info{ background:rgba(37,99,235,0.1); border-color:rgba(37,99,235,0.3); color:#60a5fa; }
+        .paso{ display:flex; gap:16px; align-items:flex-start; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.12); border-radius:16px; padding:16px; margin-bottom:14px; }
+        .paso-num{ min-width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#10b981,#2563eb); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+        .paso-txt h4{ font-size:14px; font-weight:600; margin-bottom:4px; }
+        .paso-txt p{ font-size:13px; color:#94a3b8; margin:0; line-height:1.6; }
+        @media(max-width:768px){ body{ flex-direction:column; } .sidebar{ width:100%; height:auto; position:relative; } .title h1{ font-size:28px; } .tech-grid{ grid-template-columns:1fr 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <div class="logo">
+            <img src="imagenes.png/enojona.png" alt="Logo">
+            <h2>San Nicolás</h2>
+            <p>Sistema Inteligente de Inventario</p>
+        </div>
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html" class="active">💻 Manual de Programador</a>
+        </div>
+    </div>
+    <div class="bottom-box" id="user-menu-trigger" onclick="toggleUserMenu(event)">
+        <div class="user-avatar" id="sidebar-avatar">
+            <img id="sidebar-avatar-img" src="" alt="">
+            <span id="sidebar-avatar-text">AN</span>
+        </div>
+        <div class="user-info">
+            <h4 id="sidebar-name">Administrador</h4>
+            <p id="sidebar-email">admin@sanicolas.edu.co</p>
+        </div>
+        <span class="arrow-up">▲</span>
+        <div class="user-dropdown" id="user-dropdown-menu">
+            <a href="perfil.html">👤 Mi Perfil</a>
+            <a href="ayuda.html">❓ Soporte Técnico</a>
+            <hr style="border:1px solid rgba(255,255,255,0.05);margin:5px 0;">
+            <a href="login.html" style="color:#f87171 !important;">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <div class="title">
+            <h1>💻 MANUAL DE PROGRAMADOR</h1>
+            <p>Documentación técnica del Sistema de Inventario San Nicolás</p>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="mostrarSeccion('descripcion', this)">📋 Descripción</div>
+        <div class="tab" onclick="mostrarSeccion('tecnologias', this)">⚙️ Tecnologías</div>
+        <div class="tab" onclick="mostrarSeccion('archivos', this)">📁 Archivos</div>
+        <div class="tab" onclick="mostrarSeccion('modulos', this)">🧩 Módulos</div>
+        <div class="tab" onclick="mostrarSeccion('localstorage', this)">💾 localStorage</div>
+        <div class="tab" onclick="mostrarSeccion('agregar', this)">➕ Agregar salón</div>
+        <div class="tab" onclick="mostrarSeccion('mejoras', this)">🚀 Mejoras</div>
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <div class="seccion visible" id="sec-descripcion">
+        <div class="manual-card">
+            <h2>📋 Descripción General del Sistema</h2>
+            <p>El <strong>Sistema de Inventario San Nicolás</strong> es una aplicación web desarrollada con tecnologías frontend puras (sin frameworks ni backend), diseñada para gestionar el inventario de equipos y recursos de la Institución Educativa Técnica San Nicolás.</p>
+            <h3>Objetivo técnico</h3>
+            <p>Proveer una interfaz visual moderna y funcional sin dependencia de servidores externos. Todos los datos del usuario se almacenan en <code style="color:#34d399;">localStorage</code>.</p>
+            <h3>Características técnicas principales</h3>
+            <ul>
+                <li>Sin backend ni base de datos remota</li>
+                <li>Persistencia de datos con localStorage</li>
+                <li>Generación de QR mediante API externa (qrserver.com)</li>
+                <li>Exportación a PDF con la librería jsPDF</li>
+                <li>Diseño 100% responsivo con CSS Grid y Flexbox</li>
+                <li>Efectos visuales con CSS backdrop-filter y gradientes</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TECNOLOGÍAS -->
+    <div class="seccion" id="sec-tecnologias">
+        <div class="manual-card">
+            <h2>⚙️ Tecnologías Utilizadas</h2>
+            <div class="tech-grid">
+                <div class="tech-badge"><div class="icon">🌐</div><h4>HTML5</h4><p>Estructura de todas las páginas</p></div>
+                <div class="tech-badge"><div class="icon">🎨</div><h4>CSS3</h4><p>Diseño, animaciones y responsividad</p></div>
+                <div class="tech-badge"><div class="icon">⚡</div><h4>JavaScript</h4><p>Lógica, eventos e interactividad</p></div>
+                <div class="tech-badge"><div class="icon">📄</div><h4>jsPDF 2.5.1</h4><p>Generación de PDF para QR en lote</p></div>
+                <div class="tech-badge"><div class="icon">📱</div><h4>QR Server API</h4><p>Generación de códigos QR</p></div>
+                <div class="tech-badge"><div class="icon">🔤</div><h4>Google Fonts</h4><p>Tipografía Poppins</p></div>
+            </div>
+            <h3>CDN utilizados</h3>
+            <div class="code-block">
+&lt;!-- jsPDF --&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"&gt;&lt;/script&gt;
+
+&lt;!-- Google Fonts --&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"&gt;
+
+&lt;!-- API QR --&gt;
+https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=[URL]
+            </div>
+        </div>
+    </div>
+
+    <!-- ARCHIVOS -->
+    <div class="seccion" id="sec-archivos">
+        <div class="manual-card">
+            <h2>📁 Estructura de Archivos</h2>
+            <div class="code-block">
+PROYECTO1/
+├── index.html              ← Pantalla de bienvenida
+├── login.html              ← Formulario de inicio de sesión
+├── salones.html            ← Vista principal de salones
+├── inventario.html         ← Inventario general
+├── reportes.html           ← Módulo de reportes
+├── historial.html          ← Historial de cambios
+├── configuracion.html      ← Configuración del sistema
+├── usuarios.html           ← Gestión de usuarios
+├── perfil.html             ← Perfil de usuario
+├── ayuda.html              ← Soporte técnico
+├── equipos_mantenimiento.html
+├── reporte_generados.html
+├── manual_usuario.html     ← Manual de usuario
+├── manual_programador.html ← Este archivo
+├── salon1.html ... salon9.html
+├── polivalente.html · restaurante.html
+├── laboratorio.html · saladeinformatica.html
+├── saladeprofesores.html · salatecnica.html
+└── imagenes.png/
+    └── enojona.png         ← Logo de la institución
+            </div>
+        </div>
+        <div class="manual-card">
+            <h2>📄 Páginas Principales</h2>
+            <div class="archivo"><div class="archivo-icono">🏠</div><div class="archivo-info"><h4>index.html</h4><p>Pantalla de bienvenida con animaciones CSS y botón de acceso. Redirige a login.html.</p></div></div>
+            <div class="archivo"><div class="archivo-icono">🔐</div><div class="archivo-info"><h4>login.html</h4><p>Formulario de autenticación. Valida campos y redirige al panel principal.</p></div></div>
+            <div class="archivo"><div class="archivo-icono">🏫</div><div class="archivo-info"><h4>salones.html</h4><p>Página central. Muestra estadísticas globales, grid de salones, generador de QR y chat asistente.</p></div></div>
+            <div class="archivo"><div class="archivo-icono">👤</div><div class="archivo-info"><h4>perfil.html</h4><p>Gestión de perfil con edición de datos, foto, avatares emoji y cambio de contraseña.</p></div></div>
+            <div class="archivo"><div class="archivo-icono">🛠</div><div class="archivo-info"><h4>equipos_mantenimiento.html</h4><p>Lista de órdenes de servicio activas con estado de equipos.</p></div></div>
+        </div>
+    </div>
+
+    <!-- MÓDULOS -->
+    <div class="seccion" id="sec-modulos">
+        <div class="manual-card">
+            <h2>🧩 Módulos del Sistema</h2>
+            <h3>1. Generador de QR</h3>
+            <div class="code-block">
+// Genera QR usando API externa
+function actualizarQR(id, nombre) {
+    const enlace = `${URL_BASE}${id}.html`;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(enlace)}`;
+}
+            </div>
+            <h3>2. Exportación PDF en lote (jsPDF)</h3>
+            <div class="code-block">
+// Convierte imagen a base64 para el PDF
+const blob = await (await fetch(urlQR)).blob();
+const base64 = await new Promise((res) => {
+    const r = new FileReader();
+    r.onloadend = () => res(r.result);
+    r.readAsDataURL(blob);
+});
+doc.addImage(base64, 'PNG', x, y, 45, 45);
+            </div>
+            <h3>3. Chat Asistente</h3>
+            <div class="code-block">
+// Respuestas automáticas por palabras clave
+if (texto.includes('mantenimiento')) {
+    respuesta = "38 equipos en mantenimiento...";
+} else if (texto.includes('qr')) {
+    respuesta = "Usa el panel derecho para generar QR...";
+}
+            </div>
+            <h3>4. Módulo de Perfil</h3>
+            <p>Lee y escribe en localStorage bajo la clave <code style="color:#34d399;">'perfil_usuario'</code>. Soporta foto en base64, avatar emoji o iniciales.</p>
+        </div>
+    </div>
+
+    <!-- LOCALSTORAGE -->
+    <div class="seccion" id="sec-localstorage">
+        <div class="manual-card">
+            <h2>💾 Uso de localStorage</h2>
+            <h3>Estructura del objeto guardado</h3>
+            <div class="code-block">
+{
+  "nombre":   "Administrador",
+  "apellido":  "San Nicolás",
+  "correo":   "admin@sanicolas.edu.co",
+  "telefono":  "3001234567",
+  "rol":       "Administrador",
+  "sede":      "Institución San Nicolás",
+  "cargo":     "Gestor de Inventario",
+  "foto":      "data:image/jpeg;base64,...",
+  "avatar":    "👩‍🏫",
+  "password":  "******"
+}
+            </div>
+            <h3>Leer el perfil desde cualquier página</h3>
+            <div class="code-block">
+const p = JSON.parse(localStorage.getItem('perfil_usuario') || '{}');
+
+if (p.foto) {
+    document.getElementById('sidebar-avatar-img').src = p.foto;
+    document.getElementById('sidebar-avatar-img').style.display = 'block';
+} else if (p.avatar) {
+    document.getElementById('sidebar-avatar-text').textContent = p.avatar;
+}
+if (p.nombre) document.getElementById('sidebar-name').textContent = p.nombre;
+if (p.correo) document.getElementById('sidebar-email').textContent = p.correo;
+            </div>
+            <div class="alerta alerta-info">ℹ️ localStorage guarda datos solo en ese navegador y dispositivo. Si el usuario limpia el caché, los datos se pierden.</div>
+        </div>
+    </div>
+
+    <!-- AGREGAR SALÓN -->
+    <div class="seccion" id="sec-agregar">
+        <div class="manual-card">
+            <h2>➕ Cómo Agregar un Nuevo Salón</h2>
+            <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><h4>Crear el archivo HTML</h4><p>Copia <code style="color:#34d399;">salon1.html</code> y renómbralo (ej: <code style="color:#34d399;">salon10.html</code>). Cambia el nombre y código dentro del HTML.</p></div></div>
+            <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><h4>Agregar tarjeta en salones.html</h4><p>Busca el div <code style="color:#34d399;">.room-grid</code> y agrega:</p></div></div>
+            <div class="code-block">
+&lt;div class="room" onclick="window.location.href='salon10.html'" data-name="Salón 10"&gt;
+    &lt;h3&gt;&lt;span&gt;👨‍🏫&lt;/span&gt; Salón 10&lt;/h3&gt;
+    &lt;p&gt;Código: SN-10&lt;/p&gt;
+&lt;/div&gt;
+            </div>
+            <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><h4>Agregar al selector de QR</h4><p>En el <code style="color:#34d399;">&lt;select id="qr-select-places"&gt;</code> agrega:</p></div></div>
+            <div class="code-block">
+&lt;option value="salon10"&gt;Salón 10&lt;/option&gt;
+            </div>
+        </div>
+    </div>
+
+    <!-- MEJORAS -->
+    <div class="seccion" id="sec-mejoras">
+        <div class="manual-card">
+            <h2>🚀 Posibles Mejoras Futuras</h2>
+            <h3>Corto plazo</h3>
+            <ul>
+                <li>Base de datos real con Firebase o Supabase</li>
+                <li>Autenticación con usuarios reales (Firebase Auth)</li>
+                <li>Exportar inventario a Excel con SheetJS</li>
+                <li>Notificaciones push para equipos en mantenimiento</li>
+            </ul>
+            <h3>Mediano plazo</h3>
+            <ul>
+                <li>App móvil con escáner QR integrado</li>
+                <li>Panel de estadísticas con Chart.js</li>
+                <li>Sistema de tickets de soporte técnico real</li>
+                <li>Control de acceso por roles con JWT</li>
+            </ul>
+            <h3>Largo plazo</h3>
+            <ul>
+                <li>Migrar a React o Vue</li>
+                <li>Backend con Node.js + Express y PostgreSQL</li>
+                <li>API REST para integración con otros sistemas</li>
+            </ul>
+            <h3>Limitaciones actuales</h3>
+            <div class="alerta">⚠️ Datos guardados solo en localStorage. Se pierden si se limpia el caché o se usa otro dispositivo.</div>
+            <div class="alerta">⚠️ Sin autenticación real. Cualquier persona con acceso al URL puede usar el sistema.</div>
+            <div class="alerta">⚠️ La generación de QR requiere internet (API externa qrserver.com).</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function mostrarSeccion(id, tabEl) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('sec-' + id).classList.add('visible');
+        tabEl.classList.add('active');
+    }
+    function toggleUserMenu(event) {
+        event.stopPropagation();
+        const d = document.getElementById('user-dropdown-menu');
+        const a = document.querySelector('.arrow-up');
+        d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+        if(a) a.style.transform = d.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+    window.addEventListener('click', function(e) {
+        const t = document.getElementById('user-menu-trigger');
+        if(t && !t.contains(e.target)) {
+            document.getElementById('user-dropdown-menu').style.display = 'none';
+            const a = document.querySelector('.arrow-up');
+            if(a) a.style.transform = 'rotate(0deg)';
+        }
+    });
+    const p = JSON.parse(localStorage.getItem('perfil_usuario') || '{}');
+    if(p.foto){ const i=document.getElementById('sidebar-avatar-img'); i.src=p.foto; i.style.display='block'; document.getElementById('sidebar-avatar-text').style.display='none'; }
+    else if(p.avatar){ document.getElementById('sidebar-avatar-text').textContent=p.avatar; }
+    if(p.nombre) document.getElementById('sidebar-name').textContent=p.nombre;
+    if(p.correo) document.getElementById('sidebar-email').textContent=p.correo;
+</script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Inventario San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white;
+            display:flex;
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+
+        /* SCROLL */
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(6,18,38,0.85);
+            backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08);
+            padding:20px 15px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+
+        .menu{ margin-top:35px; }
+        .menu a{
+            display:flex; align-items:center; gap:12px; padding:15px; border-radius:16px;
+            color:white; text-decoration:none; margin-bottom:12px; transition:0.3s; font-weight:500;
+        }
+        .menu a:hover, .menu .active{
+            background:linear-gradient(90deg,#2563eb,#7c3aed);
+            transform:translateX(5px);
+            box-shadow:0 0 20px rgba(37,99,235,0.4);
+        }
+
+        .bottom-box{ background:linear-gradient(135deg,#0f172a,#111827); border-radius:22px; padding:18px; border:1px solid rgba(255,255,255,0.05); }
+        .bottom-box h4{ margin-bottom:10px; }
+        .bottom-box p{ color:#9ca3af; font-size:13px; }
+
+        /* MAIN */
+        .main{ flex:1; padding:30px; }
+
+        /* TOPBAR */
+        .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+        .title h1{
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(90deg, #2563eb, #a855f7);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+        .title p{ color:#94a3b8; margin-top:5px; }
+
+        /* CONFIGURATION GRID */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .config-section {
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            border-radius: 28px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .config-section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-section .section-desc {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        /* FORMS & INPUTS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.2);
+        }
+
+        /* ROW CONTROLS */
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+        .flex-row .form-group { flex: 1; }
+
+        /* TOGGLE SWITCHES */
+        .toggle-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 15px 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .toggle-info h4 { font-size: 14px; font-weight: 600; }
+        .toggle-info p { font-size: 12px; color: #94a3b8; }
+
+        /* Estilo Switch Checkbox */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155; transition: .3s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        /* Corrección del selector CSS para el estado Checked */
+        input:checked + .slider { background: linear-gradient(90deg, #2563eb, #7c3aed) !important; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* BUTTONS */
+        .btn-save {
+            width: 100%; padding: 14px; border: none; border-radius: 14px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white; font-weight: 700; cursor: pointer; transition: 0.3s;
+            font-size: 15px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+            margin-top: 10px;
+        }
+        .btn-save:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(37,99,235,0.4); }
+
+        .btn-outline {
+            width: 100%; padding: 12px; border: 1px solid #dc2626; border-radius: 14px;
+            background: transparent; color: #f87171; font-weight: 600; cursor: pointer;
+            transition: 0.3s; font-size: 14px; margin-top: 10px;
+        }
+        .btn-outline:hover { background: rgba(220, 38, 38, 0.1); }
+
+        .btn-secondary {
+            width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.15); border-radius: 14px;
+            background: #0f172a; color: white; font-weight: 600; cursor: pointer;
+            transition: 0.3s; font-size: 14px; margin-bottom: 10px;
+        }
+        .btn-secondary:hover { background: #1e293b; border-color: rgba(255,255,255,0.3); }
+
+        /* FLOATING */
+        .floating{ position:fixed; bottom:25px; right:25px; width:65px; height:65px; background:linear-gradient(135deg,#2563eb,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; box-shadow:0 0 30px rgba(37,99,235,0.5); animation:float 2s infinite ease-in-out; z-index: 100; }
+        @keyframes float{ 0%{transform:translateY(0);} 50%{transform:translateY(-8px);} 100%{transform:translateY(0);} }
+
+        /* RESPONSIVE */
+        @media(max-width:1200px){ .config-grid { grid-template-columns: 1fr; } }
+        @media(max-width:768px){ body{ flex-direction:column; } .sidebar{ width:100%; } .topbar{ flex-direction:column; gap:20px; align-items:flex-start; } .title h1{ font-size:36px; } }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box">
+            <h4 id="display-admin-role">Administrador</h4>
+            <p id="display-admin-email">admin@sanicolas.edu.co</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title">
+                <h1>CONFIGURACIÓN</h1>
+                <p>Personaliza y gestiona las preferencias globales de tu plataforma</p>
+            </div>
+        </div>
+
+        <form id="global-config-form" onsubmit="guardarConfiguracion(event)">
+            <div class="config-grid">
+                
+                <div class="config-section">
+                    <div>
+                        <h2>🏫 Datos de la Institución</h2>
+                        <p class="section-desc">Actualiza la información visible del plantel educativo</p>
+                        
+                        <div class="form-group">
+                            <label>Nombre de la Institución</label>
+                            <input type="text" id="inst-nombre" value="Institución Educativa San Nicolás" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico de Soporte</label>
+                            <input type="email" id="inst-email" value="admin@sanicolas.edu.co" required>
+                        </div>
+                        <div class="flex-row">
+                            <div class="form-group">
+                                <label>Prefijo de Código Fijo</label>
+                                <input type="text" id="inst-prefijo" value="SN-">
+                            </div>
+                            <div class="form-group">
+                                <label>Año Escolar Activo</label>
+                                <select id="inst-year">
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save">Guardar Configuración Global</button>
+                </div>
+
+                <div class="config-section">
+                    <div>
+                        <h2>📱 Generador QR e Interfaz</h2>
+                        <p class="section-desc">Modifica los parámetros de los accesos y visualización</p>
+                        
+                        <div class="form-group">
+                            <label>Ruta URL Base para Códigos QR</label>
+                            <input type="text" id="qr-url" value="http://sanicolas.edu.co/inventario/">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Resolución de Descarga del QR</label>
+                            <select id="qr-res">
+                                <option value="baja">Baja (200x200px) - Rápido</option>
+                                <option value="media" selected>Media (500x500px) - Recomendado</option>
+                                <option value="alta">Alta (1000x1000px) - Para Imprimir</option>
+                            </select>
+                        </div>
+
+                        <div class="toggle-box">
+                            <div class="toggle-info">
+                                <h4>Tema Oscuro Predeterminado</h4>
+                                <p>Forzar la interfaz en modo noche espacial.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-darkmode" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-box">
+                            <div class="toggle-info">
+                                <h4>Alertas por Correo Automáticas</h4>
+                                <p>Enviar avisos de novedades críticas al administrador.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-alerts" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div>
+                        <h2>💾 Respaldo y Base de Datos</h2>
+                        <p class="section-desc">Protege la información de los salones y recursos</p>
+                        
+                        <div class="toggle-box" style="background: transparent; padding: 0; border: none; margin-bottom: 25px;">
+                            <div class="toggle-info">
+                                <h4>Estado del Almacenamiento</h4>
+                                <p id="backup-status">Última copia de seguridad automática: Hace 1 día</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-secondary" onclick="exportarInventario()">📊 Exportar Inventario Completo (.xlsx)</button>
+                        <button type="button" class="btn-secondary" onclick="crearPuntoRestauracion()">📁 Crear Punto de Restauración (.json)</button>
+                    </div>
+                </div>
+
+                <div class="config-section" style="border-color: rgba(220, 38, 38, 0.3);">
+                    <div>
+                        <h2 style="color: #f87171;">⚠️ Zona de Seguridad Avanzada</h2>
+                        <p class="section-desc">Acciones críticas e irreversibles del sistema educativo</p>
+                        
+                        <div class="toggle-box">
+                            <div class="toggle-info">
+                                <h4>Modo Mantenimiento Global</h4>
+                                <p>Bloquea el sistema para usuarios comunes mientras editas.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-mantenimiento">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-outline" onclick="limpiarHistorial()">🧹 Limpiar Historial de Novedades</button>
+                        <button type="button" class="btn-outline" style="background: rgba(220, 38, 38, 0.05);" onclick="formatearInventario()">🔄 Formatear Inventario a Cero</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <div class="floating" onclick="abrirSoporte()">💬</div>
+
+    <script>
+        // Función principal para guardar configuraciones
+        function guardarConfiguracion(event) {
+            event.preventDefault();
+            
+            // Captura de valores del DOM
+            const nombre = document.getElementById('inst-nombre').value;
+            const email = document.getElementById('inst-email').value;
+            const darkmode = document.getElementById('toggle-darkmode').checked;
+            
+            // Actualización dinámica en interfaz de ejemplo
+            document.getElementById('display-admin-email').innerText = email;
+            
+            alert(`¡Configuración de "${nombre}" guardada con éxito con las preferencias indicadas!`);
+        }
+
+        // Acciones de Base de datos
+        function exportarInventario() {
+            alert('Procesando datos...\nGenerando y descargando plantilla Excel (.xlsx) con el inventario actual San Nicolás.');
+        }
+
+        function crearPuntoRestauracion() {
+            const fechaActual = new Date().toLocaleString();
+            alert(`Punto de restauración creado con éxito.\nArchivo JSON estructurado guardado en el servidor.`);
+            document.getElementById('backup-status').innerText = `Última copia de seguridad automática: Hoy (${fechaActual})`;
+        }
+
+        // Acciones críticas de seguridad avanzada
+        function limpiarHistorial() {
+            const confirmacion = prompt('Por seguridad, escribe la palabra CONFIGURAR para borrar las novedades activas:');
+            if (confirmacion === 'CONFIGURAR') {
+                alert('Historial de novedades y logs de salones vaciado correctamente.');
+            } else if (confirmacion !== null) {
+                alert('Código incorrecto. Acción cancelada.');
+            }
+        }
+
+        function formatearInventario() {
+            const confirmacion = prompt('¡ALERTA CRÍTICA! Esto pondrá todos los salones e ítems a cero de forma irreversible.\nEscribe REINICIAR TODO para confirmar:');
+            if (confirmacion === 'REINICIAR TODO') {
+                alert('Sistema restablecido a valores de fábrica. Inventario vacío.');
+            } else if (confirmacion !== null) {
+                alert('Confirmación incorrecta. El inventario permanece intacto.');
+            }
+        }
+
+        function abrirSoporte() {
+            alert('Abriendo canal de soporte técnico de San Nicolás...');
+        }
+    </script>
+</body>
+</html>

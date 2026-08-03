@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario San Nicolás - Salones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white; display:flex; min-height:100vh; overflow-x:hidden;
+        }
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+        .sidebar{
+            width:270px; background:rgba(6,18,38,0.85); backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08); padding:20px 15px;
+            display:flex; flex-direction:column; justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+        .logo{ text-align:center; padding-top:15px; }
+        .logo img{ width:150px; height:auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37,99,235,0.7)); }
+        .logo h2{ font-size:30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+        .menu{ margin-top:35px; margin-left:-15px; margin-right:-15px; max-height:55vh; overflow-y:auto; }
+        .menu a{
+            display:flex; align-items:center; gap:12px; padding:15px 30px;
+            border-radius:0; color:white; text-decoration:none; margin-bottom:4px;
+            transition:0.3s; font-weight:500;
+        }
+        .menu a:hover, .menu a.active{
+            background:linear-gradient(90deg,#2563eb,#7c3aed);
+            box-shadow:0 4px 15px rgba(37,99,235,0.3);
+        }
+        .menu-separator{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#64748b; padding:14px 30px 6px 30px; font-weight:600; }
+        .bottom-box{
+            background:linear-gradient(135deg,#0f172a,#111827); border-radius:22px;
+            padding:12px 15px; border:1px solid rgba(255,255,255,0.05);
+            display:flex; align-items:center; gap:12px;
+            cursor:pointer; position:relative; transition:0.3s;
+        }
+        .bottom-box:hover{ background:#1e293b; border-color:rgba(37,99,235,0.3); }
+        .user-avatar{
+            width:42px; height:42px; border-radius:50%; background:#2563eb;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:14px; border:2px solid #2563eb;
+            box-shadow:0 0 10px rgba(37,99,235,0.3); overflow:hidden; flex-shrink:0;
+        }
+        .user-avatar img{ width:100%; height:100%; object-fit:cover; display:none; border-radius:50%; }
+        .user-avatar span{ display:block; }
+        .user-info{ flex:1; text-align:left; }
+        .user-info h4{ font-size:14px; margin-bottom:2px; font-weight:600; color:white; }
+        .user-info p{ color:#9ca3af; font-size:11px; margin-bottom:0; }
+        .arrow-up{ font-size:10px; color:#64748b; transition:0.3s; }
+        .user-dropdown{
+            position:absolute; bottom:85px; left:0; width:100%;
+            background:#0f172a; border:1px solid rgba(255,255,255,0.08);
+            border-radius:18px; padding:10px;
+            box-shadow:0 -10px 25px rgba(0,0,0,0.5);
+            display:none; flex-direction:column; z-index:999;
+        }
+        .user-dropdown a{
+            padding:10px 14px !important; font-size:13px !important;
+            border-radius:10px !important; margin-bottom:4px !important;
+            display:flex !important; align-items:center; gap:10px;
+            color:white !important; text-decoration:none !important;
+            transition:0.2s; background:transparent !important;
+            box-shadow:none !important; transform:none !important;
+        }
+        .user-dropdown a:hover{ background:rgba(255,255,255,0.05) !important; }
+        .main{ flex:1; padding:30px; }
+        .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+        .title h1{
+            font-size:48px; font-weight:800;
+            background:linear-gradient(90deg,#2563eb,#cf55f7);
+            background-clip:text; -webkit-background-clip:text;
+            color:transparent; -webkit-text-fill-color:transparent;
+        }
+        .title p{ color:#94a3b8; margin-top:5px; }
+        .search{ background:rgba(15,23,42,0.9); padding:14px 20px; border-radius:18px; width:340px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 0 25px rgba(37,99,235,0.1); }
+        .search input{ background:none; border:none; outline:none; color:white; width:100%; font-size:15px; }
+        .stats{ display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-bottom:30px; }
+        .card{ padding:24px; border-radius:24px; position:relative; overflow:hidden; transition:0.4s; border:1px solid rgba(255,255,255,0.06); }
+        .card:hover{ transform:translateY(-8px) scale(1.02); }
+        .card::before{ content:""; position:absolute; width:150px; height:150px; background:rgba(255,255,255,0.08); border-radius:50%; top:-50px; right:-50px; }
+        .card h2{ font-size:40px; margin-bottom:8px; position:relative; z-index:2; }
+        .card p{ color:#e5e7eb; position:relative; z-index:2; }
+        .blue{ background:linear-gradient(135deg,#1e3a8a,#2563eb); }
+        .green{ background:linear-gradient(135deg,#14532d,#16a34a); }
+        .orange{ background:linear-gradient(135deg,#78350f,#f59e0b); }
+        .red{ background:linear-gradient(135deg,#7f1d1d,#ef4444); }
+        .purple{ background:linear-gradient(135deg,#4c1d95,#8b5cf6); }
+        .content{ display:grid; grid-template-columns:3fr 1fr; gap:20px; align-items:start; }
+        .rooms{ background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:30px; padding:30px; border:1px solid rgba(255,255,255,0.05); height:fit-content; }
+        .rooms h2{ font-size:30px; margin-bottom:10px; }
+        .rooms p{ color:#94a3b8; margin-bottom:25px; }
+        .room-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        .room{
+            background:linear-gradient(145deg,#0f172a,#111827); border-radius:24px; padding:22px;
+            border:1px solid rgba(255,255,255,0.05); transition:0.4s; position:relative; overflow:hidden; cursor:pointer;
+        }
+        .room::before{ content:""; position:absolute; width:200px; height:200px; background:rgba(37,99,235,0.08); border-radius:50%; top:-100px; right:-100px; }
+        .room:hover{ transform:translateY(-8px); border-color:#2563eb; box-shadow:0 0 25px rgba(37,99,235,0.2); }
+        .room h3{ margin-bottom:8px; font-size:18px; position:relative; z-index:2; display:flex; align-items:center; gap:8px; }
+        .room p{ margin-bottom:0; font-size:14px; position:relative; z-index:2; color:#cbd5e1; }
+        .right{ display:flex; flex-direction:column; gap:20px; }
+        .qr{ background:rgba(8,17,31,0.85); backdrop-filter:blur(18px); border-radius:28px; padding:25px; border:1px solid rgba(255,255,255,0.05); }
+        .qr h2{ margin-bottom:15px; font-size:20px; }
+        .qr-select{ width:100%; padding:12px; background:#0f172a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; margin-bottom:10px; outline:none; cursor:pointer; }
+        .qr p#qr-code-text{ font-size:11px; color:#94a3b8; margin-bottom:12px; word-break:break-all; }
+        .qr .qr-container{ background:white; padding:12px; border-radius:18px; display:flex; justify-content:center; align-items:center; margin-top:5px; }
+        .qr img{ width:100%; max-width:180px; height:auto; }
+        .download{ width:100%; margin-top:15px; padding:14px; border:none; border-radius:14px; background:linear-gradient(90deg,#2563eb,#7c3aed); color:white; font-weight:700; cursor:pointer; transition:0.3s; }
+        .download:hover{ transform:scale(1.02); box-shadow:0 0 15px rgba(37,99,235,0.4); }
+        .bulk-download{ background:linear-gradient(90deg,#10b981,#059669) !important; margin-top:8px; }
+        .bulk-download:hover{ box-shadow:0 0 15px rgba(16,185,129,0.4) !important; }
+        .news-box{ background:#0f172a; padding:15px; border-radius:18px; margin-bottom:12px; transition:0.2s; border:1px solid transparent; }
+        .news-box:hover{ border-color:rgba(37,99,235,0.4); background:#111c30; }
+        .news-box h4{ margin-bottom:5px; }
+        .news-box p{ color:#94a3b8; font-size:13px; }
+        .floating{ position:fixed; bottom:25px; right:25px; width:65px; height:65px; background:linear-gradient(135deg,#2563eb,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; box-shadow:0 0 30px rgba(37,99,235,0.5); animation:floatAnim 2s infinite ease-in-out; z-index:100; }
+        @keyframes floatAnim{ 0%{transform:translateY(0);} 50%{transform:translateY(-8px);} 100%{transform:translateY(0);} }
+        .floating:hover{ transform:scale(1.08); }
+        .chat-container{
+            position:fixed; bottom:105px; right:25px; width:350px; height:480px;
+            background:#060e1e; border:1px solid rgba(255,255,255,0.1);
+            border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.6);
+            display:none; flex-direction:column; overflow:hidden; z-index:101; backdrop-filter:blur(20px);
+        }
+        .chat-header{ background:linear-gradient(90deg,#2563eb,#7c3aed); padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+        .chat-header h3{ font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .chat-header button{ background:none; border:none; color:#94a3b8; font-size:16px; cursor:pointer; }
+        .chat-header button:hover{ color:white; }
+        .chat-body{ flex:1; padding:15px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+        .message{ padding:10px 14px; border-radius:16px; font-size:13px; max-width:82%; line-height:1.5; word-wrap:break-word; }
+        .bot-msg{ background:rgba(255,255,255,0.06); color:#e2e8f0; align-self:flex-start; border-bottom-left-radius:4px; border:1px solid rgba(255,255,255,0.03); }
+        .user-msg{ background:linear-gradient(135deg,#2563eb,#1d4ed8); color:white; align-self:flex-end; border-bottom-right-radius:4px; }
+        .typing-msg{ opacity:0.6; font-style:italic; }
+        .chat-footer{ padding:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; gap:8px; background:rgba(15,23,42,0.4); }
+        .chat-footer input{ flex:1; background:#0f172a; border:1px solid rgba(255,255,255,0.08); padding:11px 14px; border-radius:14px; color:white; outline:none; font-size:13px; transition:0.3s; }
+        .chat-footer input:focus{ border-color:#2563eb; }
+        .chat-footer input:disabled{ opacity:0.5; }
+        .chat-footer button{ background:#2563eb; border:none; color:white; padding:0 14px; border-radius:14px; cursor:pointer; font-weight:bold; }
+        .chat-footer button:hover{ background:#1d4ed8; transform:scale(1.03); }
+        .modal-overlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,8,23,0.7); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:2000; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+        .modal-overlay.active{ opacity:1; pointer-events:auto; }
+        .modal-content{ background:#060e1e; border:1px solid rgba(255,255,255,0.1); width:90%; max-width:500px; border-radius:24px; padding:25px; box-shadow:0 20px 50px rgba(0,0,0,0.75); transform:scale(0.9); transition:transform 0.3s ease; }
+        .modal-overlay.active .modal-content{ transform:scale(1); }
+        .modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; }
+        .modal-header h3{ font-size:20px; font-weight:700; background:linear-gradient(90deg,#2563eb,#a855f7); background-clip:text; -webkit-background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+        .modal-close{ background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; }
+        .modal-close:hover{ color:white; }
+        .modal-body{ font-size:14px; color:#cbd5e1; line-height:1.6; }
+        .modal-body p{ margin-bottom:12px; }
+        .modal-body ul{ margin-left:20px; margin-bottom:15px; }
+        .modal-body li{ margin-bottom:6px; }
+        @media(max-width:1200px){ .stats{ grid-template-columns:repeat(2,1fr); } .room-grid{ grid-template-columns:repeat(2,1fr); } .content{ grid-template-columns:1fr; } }
+        @media(max-width:768px){ body{ flex-direction:column; } .sidebar{ width:100%; } .stats{ grid-template-columns:1fr; } .room-grid{ grid-template-columns:1fr; } .topbar{ flex-direction:column; gap:20px; align-items:flex-start; } .search{ width:100%; } .title h1{ font-size:36px; } .chat-container{ width:calc(100% - 40px); right:20px; bottom:95px; } }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <div class="logo">
+            <img src="imagenes.png/enojona.png" alt="Logo">
+            <h2>San Nicolás</h2>
+            <p>Sistema Inteligente de Inventario</p>
+        </div>
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+    </div>
+
+    <div class="bottom-box" id="user-menu-trigger" onclick="toggleUserMenu(event)">
+        <div class="user-avatar" id="sidebar-avatar">
+            <img id="sidebar-avatar-img" src="" alt="">
+            <span id="sidebar-avatar-text">AN</span>
+        </div>
+        <div class="user-info">
+            <h4 id="sidebar-name">Administrador</h4>
+            <p id="sidebar-email">admin@sanicolas.edu.co</p>
+        </div>
+        <span class="arrow-up">▲</span>
+        <div class="user-dropdown" id="user-dropdown-menu">
+            <a href="perfil.html">👤 Mi Perfil</a>
+            <a href="ayuda.html">❓ Soporte Técnico</a>
+            <hr style="border:1px solid rgba(255,255,255,0.05); margin:5px 0;">
+            <a href="login.html" style="color:#f87171 !important;">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <div class="title">
+            <h1>SALONES</h1>
+            <p>Control total de recursos y espacios educativos</p>
+        </div>
+        <div class="search">
+            <input type="text" id="input-search" placeholder="Buscar equipos, salones o códigos...">
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="card blue"><h2>486</h2><p>Total equipos</p></div>
+        <div class="card green"><h2>412</h2><p>Disponibles</p></div>
+        <div class="card orange"><h2>38</h2><p>Mantenimiento</p></div>
+        <div class="card red"><h2>36</h2><p>Novedades</p></div>
+        <div class="card purple"><h2>15</h2><p>Espacios activos</p></div>
+    </div>
+
+    <div class="content">
+        <div class="rooms">
+            <h2>LUGARES</h2>
+            <p>Selecciona un espacio y administra su inventario</p>
+            <div class="room-grid">
+                <div class="room" onclick="window.location.href='salon1.html'" data-name="Salón 1"><h3><span>👨‍🏫</span> Salón 1</h3><p>Código: SN-01</p></div>
+                <div class="room" onclick="window.location.href='salon2.html'" data-name="Salón 2"><h3><span>👨‍🏫</span> Salón 2</h3><p>Código: SN-02</p></div>
+                <div class="room" onclick="window.location.href='salon3.html'" data-name="Salón 3"><h3><span>👨‍🏫</span> Salón 3</h3><p>Código: SN-03</p></div>
+                <div class="room" onclick="window.location.href='salon4.html'" data-name="Salón 4"><h3><span>👨‍🏫</span> Salón 4</h3><p>Código: SN-04</p></div>
+                <div class="room" onclick="window.location.href='salon5.html'" data-name="Salón 5"><h3><span>👨‍🏫</span> Salón 5</h3><p>Código: SN-05</p></div>
+                <div class="room" onclick="window.location.href='salon6.html'" data-name="Salón 6"><h3><span>👨‍🏫</span> Salón 6</h3><p>Código: SN-06</p></div>
+                <div class="room" onclick="window.location.href='salon7.html'" data-name="Salón 7"><h3><span>👨‍🏫</span> Salón 7</h3><p>Código: SN-07</p></div>
+                <div class="room" onclick="window.location.href='salon8.html'" data-name="Salón 8"><h3><span>👨‍🏫</span> Salón 8</h3><p>Código: SN-08</p></div>
+                <div class="room" onclick="window.location.href='salon9.html'" data-name="Salón 9"><h3><span>👨‍🏫</span> Salón 9</h3><p>Código: SN-09</p></div>
+                <div class="room" onclick="window.location.href='polivalente.html'" data-name="Polivalente"><h3><span>👨‍🏫</span> Polivalente</h3><p>Código: SN-POL</p></div>
+                <div class="room" onclick="window.location.href='restaurante.html'" data-name="Restaurante"><h3><span>👨‍🏫</span> Restaurante</h3><p>Código: SN-REST</p></div>
+                <div class="room" onclick="window.location.href='saladeinformatica.html'" data-name="Sala de Informática"><h3><span>👨‍🏫</span> Sala de informática</h3><p>Código: SN-INFO</p></div>
+                <div class="room" onclick="window.location.href='saladeprofesores.html'" data-name="Sala de Profesores"><h3><span>👨‍🏫</span> Sala de profesores</h3><p>Código: SN-PROF</p></div>
+                <div class="room" onclick="window.location.href='salatecnica.html'" data-name="Sala Técnica"><h3><span>👨‍🏫</span> Sala técnica</h3><p>Código: SN-TECN</p></div>
+                <div class="room" onclick="window.location.href='laboratorio.html'" data-name="Laboratorio"><h3><span>👨‍🏫</span> Laboratorio</h3><p>Código: SN-LAB</p></div>
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="qr">
+                <h2 id="qr-title">⚙️ Generar Código QR</h2>
+                <select id="qr-select-places" class="qr-select">
+                    <option value="" disabled selected>Selecciona un lugar...</option>
+                    <option value="salon1">Salón 1</option>
+                    <option value="salon2">Salón 2</option>
+                    <option value="salon3">Salón 3</option>
+                    <option value="salon4">Salón 4</option>
+                    <option value="salon5">Salón 5</option>
+                    <option value="salon6">Salón 6</option>
+                    <option value="salon7">Salón 7</option>
+                    <option value="salon8">Salón 8</option>
+                    <option value="salon9">Salón 9</option>
+                    <option value="polivalente">Polivalente</option>
+                    <option value="restaurante">Restaurante</option>
+                    <option value="saladeinformatica">Sala de Informática</option>
+                    <option value="saladeprofesores">Sala de Profesores</option>
+                    <option value="salatecnica">Sala Técnica</option>
+                    <option value="laboratorio">Laboratorio</option>
+                </select>
+                <p id="qr-code-text">Escoge un lugar arriba para crear su código QR de acceso.</p>
+                <div class="qr-container">
+                    <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SeleccionaUnSalon" alt="Código QR">
+                </div>
+                <button class="download" id="btn-download">Descargar QR</button>
+                <button class="download bulk-download" id="btn-bulk-download">🖨️ Imprimir Todos los QR (Lote)</button>
+            </div>
+            <div class="news-box" onclick="window.location.href='reporte_generados.html'" style="cursor:pointer;">
+                <h4>📊 Reporte generado</h4>
+                <p>Ver detalles del último informe estructural.</p>
+            </div>
+            <div class="news-box" onclick="window.location.href='equipos_mantenimiento.html'" style="cursor:pointer;">
+                <h4>🛠️ Equipo en mantenimiento</h4>
+                <p>Orden de servicio activa para equipos de informática.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="custom-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="modal-title">Detalles del Registro</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body-content"></div>
+    </div>
+</div>
+
+<!-- CHAT CON IA -->
+<div class="chat-container" id="chat-window">
+    <div class="chat-header">
+        <h3>🤖 Asistente San Nicolás</h3>
+        <button onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-body" id="chat-responses">
+        <div class="message bot-msg">¡Hola! Soy tu asistente inteligente de inventario San Nicolás. ¿En qué te puedo colaborar hoy?</div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
+        <button id="send-chat-btn">➔</button>
+    </div>
+</div>
+
+<div class="floating" onclick="toggleChat()">💬</div>
+
+<script>
+// ══════════════════════════════════════════
+// CARGAR PERFIL EN SIDEBAR
+// ══════════════════════════════════════════
+(function() {
+    const p = JSON.parse(localStorage.getItem('perfil_usuario') || '{}');
+    if (p.foto) {
+        const img = document.getElementById('sidebar-avatar-img');
+        img.src = p.foto; img.style.display = 'block';
+        document.getElementById('sidebar-avatar-text').style.display = 'none';
+    } else if (p.avatar) {
+        document.getElementById('sidebar-avatar-text').textContent = p.avatar;
+    }
+    if (p.nombre) document.getElementById('sidebar-name').textContent = p.nombre;
+    if (p.correo) document.getElementById('sidebar-email').textContent = p.correo;
+})();
+
+// ══════════════════════════════════════════
+// QR
+// ══════════════════════════════════════════
+const URL_BASE = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+const qrTitle    = document.getElementById('qr-title');
+const qrCodeText = document.getElementById('qr-code-text');
+const qrImg      = document.getElementById('qr-img');
+const btnDownload     = document.getElementById('btn-download');
+const btnBulkDownload = document.getElementById('btn-bulk-download');
+const qrSelect   = document.getElementById('qr-select-places');
+const searchInput = document.getElementById('input-search');
+const rooms = document.querySelectorAll('.room');
+
+function actualizarQR(id, nombre) {
+    const enlace = `${URL_BASE}${id}.html`;
+    qrTitle.innerText    = `📱 QR ${nombre}`;
+    qrCodeText.innerText = `Enlace: ${enlace}`;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(enlace)}`;
+}
+
+qrSelect.addEventListener('change', (e) => {
+    actualizarQR(e.target.value, e.target.options[e.target.selectedIndex].text);
+});
+
+searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    rooms.forEach(r => {
+        r.style.display = r.getAttribute('data-name').toLowerCase().includes(q) ? 'block' : 'none';
+    });
+});
+
+btnDownload.addEventListener('click', async () => {
+    if (qrImg.src.includes('SeleccionaUnSalon')) { alert('Primero selecciona un salón.'); return; }
+    try {
+        const blob = await (await fetch(qrImg.src)).blob();
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `QR_${qrTitle.innerText.replace('📱 QR ','')}.png`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } catch { alert('Haz clic derecho en la imagen para guardarla.'); }
+});
+
+btnBulkDownload.addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    btnBulkDownload.innerText = '⏳ Generando PDF...';
+    btnBulkDownload.disabled = true;
+    const opciones = Array.from(qrSelect.options).filter(o => o.value !== '');
+    let x=15, y=20, contador=0;
+    const tam=45, espX=15, espY=25, cols=3;
+    for (let i=0; i<opciones.length; i++) {
+        const id=opciones[i].value, nombre=opciones[i].text;
+        const url=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(URL_BASE+id+'.html')}`;
+        try {
+            const blob = await (await fetch(url)).blob();
+            const b64  = await new Promise((res,rej)=>{ const r=new FileReader(); r.onloadend=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); });
+            doc.addImage(b64,'PNG',x,y,tam,tam);
+            doc.setFont('Helvetica','bold'); doc.setFontSize(10);
+            doc.text(nombre, x+(tam/2), y+tam+6, {align:'center'});
+            contador++;
+            if (contador%cols===0){ x=15; y+=tam+espY; } else { x+=tam+espX; }
+            if (y+tam+10>297 && i+1<opciones.length){ doc.addPage(); x=15; y=20; contador=0; }
+        } catch(e){ console.error(e); }
+    }
+    doc.save('QR_San_Nicolas.pdf');
+    btnBulkDownload.innerText = '🖨️ Imprimir Todos los QR (Lote)';
+    btnBulkDownload.disabled = false;
+});
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+function openModal(tipo) {
+    const title = document.getElementById('modal-title');
+    const body  = document.getElementById('modal-body-content');
+    if (tipo==='reporte') {
+        title.innerText = '📊 Reporte Global Generado';
+        body.innerHTML  = `<p><strong>Fecha:</strong> Hoy (Reciente)</p><p><strong>Responsable:</strong> Sistema Central Automático</p><ul><li>Se sincronizaron las hojas de vida locales.</li><li>Conectividad verificada SN-01 a SN-09.</li><li>Obsolescencia de hardware: 7.4%.</li></ul><p style="color:#10b981;">✔ Archivo indexado con éxito.</p>`;
+    } else if (tipo==='mantenimiento') {
+        title.innerText = '🛠️ Registro de Mantenimiento Activo';
+        body.innerHTML  = `<p><strong>ID Orden:</strong> #MN-9042</p><p><strong>Ubicación:</strong> Sala de Informática (SN-INFO)</p><p><strong>Equipos:</strong> 3 Terminales</p><p><strong>Falla:</strong> Fuentes de poder dañadas.</p><p><strong>Estado:</strong> En proceso.</p>`;
+    }
+    document.getElementById('custom-modal').classList.add('active');
+}
+function closeModal(){ document.getElementById('custom-modal').classList.remove('active'); }
+window.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ══════════════════════════════════════════
+// MENÚ USUARIO
+// ══════════════════════════════════════════
+function toggleUserMenu(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('user-dropdown-menu');
+    const arrow    = document.querySelector('.arrow-up');
+    if (dropdown.style.display==='flex') {
+        dropdown.style.display='none';
+        if(arrow) arrow.style.transform='rotate(0deg)';
+    } else {
+        dropdown.style.display='flex';
+        if(arrow) arrow.style.transform='rotate(180deg)';
+    }
+}
+window.addEventListener('click', function(e) {
+    const trigger = document.getElementById('user-menu-trigger');
+    if (trigger && !trigger.contains(e.target)) {
+        document.getElementById('user-dropdown-menu').style.display='none';
+        const arrow = document.querySelector('.arrow-up');
+        if(arrow) arrow.style.transform='rotate(0deg)';
+    }
+});
+
+// ══════════════════════════════════════════
+// CHAT CON IA REAL
+// ══════════════════════════════════════════
+function toggleChat() {
+    const w = document.getElementById('chat-window');
+    if (w.style.display==='flex') { w.style.display='none'; }
+    else { w.style.display='flex'; document.getElementById('chat-input').focus(); }
+}
+
+const chatInput     = document.getElementById('chat-input');
+const sendBtn       = document.getElementById('send-chat-btn');
+const chatResponses = document.getElementById('chat-responses');
+
+// ── PON TU API KEY AQUÍ ─────────────────────────────────────
+const API_KEY = 'TU_API_KEY_AQUI'; // ← consola.anthropic.com
+// ────────────────────────────────────────────────────────────
+
+const SYSTEM_PROMPT = `Eres el asistente inteligente del Sistema de Inventario de la Institución Educativa Técnica San Nicolás.
+Tu nombre es "Asistente San Nicolás".
+Responde SOLO preguntas relacionadas con:
+- Inventario de salones y equipos de la institución
+- Estado de equipos: disponibles, en mantenimiento, con novedades
+- Espacios: Salones 1-9, Polivalente, Restaurante, Sala de Informática, Sala de Profesores, Sala Técnica, Laboratorio
+- Códigos QR de acceso a cada salón
+- Reportes y estadísticas del inventario
+- Mantenimiento de equipos
+- Cómo usar el sistema
+
+Datos actuales:
+- Total equipos: 486 | Disponibles: 412 | Mantenimiento: 38 | Novedades: 36 | Espacios activos: 15
+- Códigos: SN-01 al SN-09, SN-POL, SN-REST, SN-INFO, SN-PROF, SN-TECN, SN-LAB
+
+Si preguntan algo fuera del sistema, responde amablemente que solo puedes ayudar con temas del inventario San Nicolás.
+Responde siempre en español, de forma clara y concisa (máximo 3 oraciones).`;
+
+let historialChat = [];
+
+async function enviarMensaje() {
+    const texto = chatInput.value.trim();
+    if (!texto) return;
+
+    // Mostrar mensaje usuario
+    const userDiv = document.createElement('div');
+    userDiv.className = 'message user-msg';
+    userDiv.innerText = texto;
+    chatResponses.appendChild(userDiv);
+    chatInput.value = '';
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+    chatResponses.scrollTop = chatResponses.scrollHeight;
+
+    // Indicador escribiendo
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-msg typing-msg';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerText = '⏳ Escribiendo...';
+    chatResponses.appendChild(typingDiv);
+    chatResponses.scrollTop = chatResponses.scrollHeight;
+
+    historialChat.push({ role: 'user', content: texto });
+
+    // Sin API key → respuestas locales inteligentes
+    if (!API_KEY || API_KEY === 'TU_API_KEY_AQUI') {
+        await new Promise(r => setTimeout(r, 700));
+        document.getElementById('typing-indicator')?.remove();
+        const t = texto.toLowerCase();
+        let resp = 'Puedes preguntarme sobre equipos, salones, mantenimiento o códigos QR del sistema San Nicolás.';
+        if (t.includes('hola') || t.includes('buenas') || t.includes('hey'))
+            resp = '¡Hola! Estoy listo para asistirte en el inventario de San Nicolás. ¿Qué necesitas?';
+        else if (t.includes('total') || t.includes('cuantos') || t.includes('cuántos') || t.includes('equipos'))
+            resp = 'El sistema registra 486 equipos en total: 412 disponibles, 38 en mantenimiento y 36 con novedades.';
+        else if (t.includes('mantenimiento') || t.includes('dañado') || t.includes('daño') || t.includes('roto'))
+            resp = 'Actualmente hay 38 equipos en mantenimiento. La última orden activa es #MN-9042 en la Sala de Informática.';
+        else if (t.includes('qr') || t.includes('codigo') || t.includes('código'))
+            resp = "Para generar un QR, usa el panel derecho. Selecciona el espacio y haz clic en 'Descargar QR'.";
+        else if (t.includes('salon') || t.includes('salón') || t.includes('espacio') || t.includes('lugar'))
+            resp = 'Tenemos 15 espacios: Salones 1-9, Polivalente, Restaurante, Sala de Informática, Sala de Profesores, Sala Técnica y Laboratorio.';
+        else if (t.includes('disponible'))
+            resp = 'Hay 412 equipos disponibles de 486 registrados en el sistema.';
+        else if (t.includes('novedad') || t.includes('reporte'))
+            resp = 'Se registran 36 novedades activas. Puedes ver el detalle en el módulo de Reportes.';
+        else if (t.includes('gracias'))
+            resp = '¡Con gusto! Si necesitas más información sobre el inventario, aquí estaré.';
+        const botDiv = document.createElement('div');
+        botDiv.className = 'message bot-msg';
+        botDiv.innerText = resp;
+        chatResponses.appendChild(botDiv);
+        historialChat.push({ role: 'assistant', content: resp });
+        chatInput.disabled = false; sendBtn.disabled = false;
+        chatInput.focus();
+        chatResponses.scrollTop = chatResponses.scrollHeight;
+        return;
+    }
+
+    // Con API key → IA real Claude
+    try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': API_KEY,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-haiku-4-5-20251001',
+                max_tokens: 300,
+                system: SYSTEM_PROMPT,
+                messages: historialChat
+            })
+        });
+
+        const data = await response.json();
+        document.getElementById('typing-indicator')?.remove();
+
+        if (data.content && data.content[0]) {
+            const respuesta = data.content[0].text;
+            historialChat.push({ role: 'assistant', content: respuesta });
+            const botDiv = document.createElement('div');
+            botDiv.className = 'message bot-msg';
+            botDiv.innerText = respuesta;
+            chatResponses.appendChild(botDiv);
+        } else {
+            throw new Error('Sin respuesta');
+        }
+    } catch (error) {
+        document.getElementById('typing-indicator')?.remove();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message bot-msg';
+        errorDiv.innerText = '⚠️ No pude conectarme a la IA. Verifica tu API key o conexión.';
+        chatResponses.appendChild(errorDiv);
+        console.error('Error Claude API:', error);
+    }
+
+    chatInput.disabled = false;
+    sendBtn.disabled = false;
+    chatInput.focus();
+    chatResponses.scrollTop = chatResponses.scrollHeight;
+}
+
+sendBtn.addEventListener('click', enviarMensaje);
+chatInput.addEventListener('keypress', (e) => { if(e.key==='Enter') enviarMensaje(); });
+</script>
+</body>
+</html>

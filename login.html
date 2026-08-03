@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYS.LOGIN - Inventario San Nicolás</title>
+    <!-- Importamos la fuente 'Orbitron' y 'Rajdhani' -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:ital,wght@0,400;0,600;0,800;1,700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #030712;
+            font-family: 'Rajdhani', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Líneas de escaneo holográficas de fondo (Cyberpunk Effect) */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Indicador de Estado del Sistema con letra legible, cursiva y estilo neón */
+        .sys-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Orbitron', sans-serif; /* Letra moderna y 100% legible */
+            font-style: italic; /* En cursiva */
+            font-weight: 700;
+            font-size: 13px;
+            color: #00f0ff; /* Cian brillante para que se vea claro */
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px #00f0ff, 0 0 15px rgba(0, 240, 255, 0.5);
+            z-index: 10;
+        }
+
+        /* Contenedor de Login Estilo Tarjeta Cyberpunk */
+        .login-card {
+            background: rgba(6, 11, 25, 0.9);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 30px;
+            border-radius: 12px;
+            position: relative;
+            z-index: 5;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            text-align: center;
+        }
+
+        /* Adorno visual de esquinas de interfaz tecnológica */
+        .login-card::after {
+            content: "";
+            position: absolute;
+            top: -2px; right: -2px;
+            width: 20px; height: 20px;
+            border-top: 3px solid #b026ff;
+            border-right: 3px solid #b026ff;
+            pointer-events: none;
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            bottom: -2px; left: -2px;
+            width: 20px; height: 20px;
+            border-bottom: 3px solid #b026ff;
+            border-left: 3px solid #b026ff;
+            pointer-events: none;
+        }
+
+        /* Ajuste del Escudo Institucional */
+        .logo-container {
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-container img {
+            width: 100px;
+            height: auto;
+            filter: drop-shadow(0 0 12px rgba(255, 230, 0, 0.5));
+            animation: saltarEscudo 2.5s ease-in-out infinite;
+        }
+
+        @keyframes saltarEscudo {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #b026ff;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 8px rgba(176, 38, 255, 0.4);
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #00f0ff;
+            margin-bottom: 8px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #090f1d;
+            border: 1px solid rgba(176, 38, 255, 0.5);
+            color: #ffffff;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4), inset 0 0 5px rgba(0, 240, 255, 0.2);
+            background: #0d162b;
+        }
+
+        .btn-comenzar {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #7b2cbf 0%, #00f0ff 100%);
+            border: none;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 6px;
+            text-transform: uppercase;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+            clip-path: polygon(0 0, 93% 0, 100% 30%, 100% 100%, 7% 100%, 0 70%);
+        }
+
+        .btn-comenzar:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            transform: translateY(-2px);
+            letter-spacing: 3px;
+        }
+
+        .btn-comenzar:active {
+            transform: translateY(1px);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            transition: color 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            color: #00f0ff;
+            text-shadow: 0 0 5px #00f0ff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Texto SCAN_CLASS_QR en cursiva, perfectamente legible y con brillo neón -->
+    <div class="sys-status">SCAN_CLASS_QR</div>
+
+    <div class="login-card">
+        
+        <div class="logo-container">
+            <img src="imagenes.png/escudo san nicolas.png" alt="Escudo San Nicolás">
+        </div>
+
+        <h2>ACCESO AL SISTEMA</h2>
+        <div class="subtitle">INICIAR SESIÓN</div>
+
+        <form id="form-login" onsubmit="redireccionar(event)">
+            
+            <div class="input-group">
+                <label for="email">CORREO ELECTRÓNICO</label>
+                <input type="email" id="email" placeholder="usuario@sannicolas.edu.co" required autocomplete="email">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">CONTRASEÑA</label>
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-comenzar">COMENZAR</button>
+        </form>
+
+        <a href="index.html" class="back-link">← REGRESAR A INICIO</a>
+    </div>
+
+    <script>
+        function redireccionar(event) {
+            event.preventDefault(); 
+
+            const correoUsuario = document.getElementById('email').value;
+
+            const ahora = new Date();
+            const fechaFormateada = ahora.toLocaleDateString('es-ES') + ' ' + 
+                                    ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+            const nuevoLogLogin = {
+                fecha: fechaFormateada,
+                usuario: correoUsuario,
+                rol: "Administrador", 
+                accion: "Inició sesión en el sistema exitosamente",
+                modulo: "Seguridad",
+                estado: "Info"
+            };
+
+            let historialSesiones = JSON.parse(localStorage.getItem('historialSesiones')) || [];
+            historialSesiones.push(nuevoLogLogin);
+            localStorage.setItem('historialSesiones', JSON.stringify(historialSesiones));
+
+            localStorage.setItem('usuarioActivo', correoUsuario);
+
+            window.location.href = 'salones.html';
+        }
+    </script>
+</body>
+</html>

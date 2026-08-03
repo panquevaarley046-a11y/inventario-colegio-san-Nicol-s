@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento - San Nicolás</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white;
+            display:flex;
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+
+        /* SCROLL */
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(6,18,38,0.85);
+            backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08);
+            padding:20px 15px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+
+        .menu{ margin-top:35px; }
+        .menu a{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:15px;
+            border-radius:16px;
+            color:white;
+            text-decoration:none;
+            margin-bottom:12px;
+            transition:0.3s;
+            font-weight:500;
+        }
+
+        .menu a:hover,
+        .menu .active{
+            background:linear-gradient(90deg,#2563eb,#7c3aed);
+            transform:translateX(5px);
+            box-shadow:0 0 20px rgba(37,99,235,0.4);
+        }
+
+        .bottom-box{
+            background:linear-gradient(135deg,#0f172a,#111827);
+            border-radius:22px;
+            padding:18px;
+            border:1px solid rgba(255,255,255,0.05);
+        }
+        .bottom-box p{ color:#9ca3af; font-size:13px; }
+
+        /* MAIN */
+        .main{ flex:1; padding:30px; }
+
+        /* TOPBAR */
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .title h1{
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* BOTÓN AGREGAR */
+        .btn-add-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: 0.3s ease;
+        }
+
+        .btn-add-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+        }
+
+        /* TABLA DE EQUIPOS */
+        .maintenance-container {
+            background:rgba(8,17,31,0.85);
+            backdrop-filter:blur(18px);
+            border-radius:30px;
+            padding:30px;
+            border:1px solid rgba(255,255,255,0.05);
+        }
+
+        .maintenance-container h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+        }
+
+        th {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.waiting { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-badge.repairing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .status-badge.delivered { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-table-edit {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-table-edit:hover {
+            background: white;
+            color: #020817;
+        }
+
+        .btn-table-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-table-delete:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        /* MODAL FLOTANTE */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 8, 23, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #0b1329;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 24px;
+            width: 95%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 22px;
+            font-size: 22px;
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #f59e0b;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-save, .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+        }
+
+        .btn-save {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        /* RESPONSIVO */
+        @media(max-width:768px){
+            body{ flex-direction:column; }
+            .sidebar{ width:100%; }
+            .topbar{ flex-direction:column; gap:20px; align-items:flex-start; }
+            .btn-add-main { width: 100%; justify-content: center; }
+            .title h1{ font-size:36px; }
+            .actions-cell { flex-direction: column; gap: 5px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box">
+            <h4>Administrador</h4>
+            <p>admin@sanicolas.edu.co</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title">
+                <h1>MANTENIMIENTO</h1>
+                <p>Equipos en revisión técnica y reparaciones activas</p>
+            </div>
+            <button class="btn-add-main" onclick="abrirModalMantenimiento()">
+                ➕ Registrar Reporte
+            </button>
+        </div>
+
+        <div class="maintenance-container">
+            <h2 id="totalCounter">Lista de Equipos (0 en total)</h2>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Dispositivo</th>
+                            <th>Ubicación Original</th>
+                            <th>Problema Reportado</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintenanceTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="maintenanceModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Registrar Mantenimiento</h3>
+            <form id="maintenanceForm">
+                <input type="hidden" id="editIndex">
+                
+                <div class="form-group">
+                    <label for="inputCodigo">Código del Equipo</label>
+                    <input type="text" id="inputCodigo" placeholder="Ej: #PC-0432" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputDispositivo">Dispositivo / Elemento</label>
+                    <input type="text" id="inputDispositivo" placeholder="Ej: Computador de Torre (HP)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputUbicacion">Ubicación Original</label>
+                    <input type="text" id="inputUbicacion" placeholder="Ej: Sala de Informática" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputProblema">Problema Reportado</label>
+                    <input type="text" id="inputProblema" placeholder="Ej: No da video / Pantalla rota" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="selectEstado">Estado del Proceso</label>
+                    <select id="selectEstado">
+                        <option value="repairing">⚙️ En reparación</option>
+                        <option value="waiting">⏳ En espera de repuesto</option>
+                        <option value="delivered">✅ Entregado</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="cerrarModalMantenimiento()">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Datos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Banco de datos inicial de mantenimiento
+        let reportesMantenimiento = [
+            { codigo: "#PC-0432", dispositivo: "Computador de Torre (HP)", ubicacion: "Sala de Informática", problema: "No da video / Posible falla de RAM", estado: "repairing" },
+            { codigo: "#PROY-012", dispositivo: "Videobeam (Epson)", ubicacion: "Salón 4", problema: "Cambio de lámpara necesario", estado: "waiting" },
+            { codigo: "#PC-0105", dispositivo: "Portátil (Lenovo)", ubicacion: "Sala de Profesores", problema: "Actualización de Sistema Operativo", estado: "delivered" }
+        ];
+
+        // Función encargada de dibujar la tabla en pantalla
+        function renderizarTabla() {
+            const tbody = document.getElementById("maintenanceTableBody");
+            const counter = document.getElementById("totalCounter");
+            tbody.innerHTML = "";
+
+            // Actualizar total
+            counter.innerText = `Lista de Equipos (${reportesMantenimiento.length} en total)`;
+
+            reportesMantenimiento.forEach((item, index) => {
+                // Configurar las propiedades visuales de las etiquetas según el estado
+                let badgeClass = '';
+                let badgeText = '';
+
+                if (item.estado === 'repairing') {
+                    badgeClass = 'repairing';
+                    badgeText = 'En reparación';
+                } else if (item.estado === 'waiting') {
+                    badgeClass = 'waiting';
+                    badgeText = 'En espera de repuesto';
+                } else if (item.estado === 'delivered') {
+                    badgeClass = 'delivered';
+                    badgeText = 'Entregado';
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.codigo}</strong></td>
+                        <td>${item.dispositivo}</td>
+                        <td>${item.ubicacion}</td>
+                        <td>${item.problema}</td>
+                        <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-table-edit" onclick="abrirModalMantenimiento(${index})">✏️ Editar</button>
+                                <button class="btn-table-delete" onclick="eliminarRegistro(${index})">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Abre el modal (Modo añadir si va vacío, Modo edición si recibe índice)
+        function abrirModalMantenimiento(index = null) {
+            const modal = document.getElementById("maintenanceModal");
+            const form = document.getElementById("maintenanceForm");
+            const title = document.getElementById("modalTitle");
+
+            form.reset(); // Limpiar campos previos
+
+            if (index !== null) {
+                // MODO EDICIÓN
+                title.innerText = "Modificar Reporte Técnico";
+                document.getElementById("editIndex").value = index;
+                document.getElementById("inputCodigo").value = reportesMantenimiento[index].codigo;
+                document.getElementById("inputDispositivo").value = reportesMantenimiento[index].dispositivo;
+                document.getElementById("inputUbicacion").value = reportesMantenimiento[index].ubicacion;
+                document.getElementById("inputProblema").value = reportesMantenimiento[index].problema;
+                document.getElementById("selectEstado").value = reportesMantenimiento[index].estado;
+            } else {
+                // MODO NUEVO REPORTE
+                title.innerText = "Registrar Mantenimiento";
+                document.getElementById("editIndex").value = "";
+            }
+
+            modal.classList.add("active");
+        }
+
+        function cerrarModalMantenimiento() {
+            document.getElementById("maintenanceModal").classList.remove("active");
+        }
+
+        // Función para remover un registro con confirmación de seguridad
+        function eliminarRegistro(index) {
+            const codigoItem = reportesMantenimiento[index].codigo;
+            if (confirm(`¿Estás seguro de que deseas eliminar el reporte del equipo ${codigoItem}?`)) {
+                reportesMantenimiento.splice(index, 1); // Quita el elemento del arreglo
+                renderizarTabla(); // Vuelve a dibujar todo actualizado
+            }
+        }
+
+        // Evento que gestiona el envío del formulario
+        document.getElementById("maintenanceForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const index = document.getElementById("editIndex").value;
+            
+            const nuevoDato = {
+                codigo: document.getElementById("inputCodigo").value,
+                dispositivo: document.getElementById("inputDispositivo").value,
+                ubicacion: document.getElementById("inputUbicacion").value,
+                problema: document.getElementById("inputProblema").value,
+                estado: document.getElementById("selectEstado").value
+            };
+
+            if (index !== "") {
+                // Actualizar elemento existente
+                reportesMantenimiento[parseInt(index)] = nuevoDato;
+            } else {
+                // Insertar nuevo elemento
+                reportesMantenimiento.push(nuevoDato);
+            }
+
+            renderizarTabla();
+            cerrarModalMantenimiento();
+        });
+
+        // Carga inicial de datos al abrir el archivo
+        window.onload = renderizarTabla;
+    </script>
+</body>
+</html>

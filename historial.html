@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario San Nicolás - Historial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            background:
+            radial-gradient(circle at top left,#1e3a8a33,transparent 30%),
+            radial-gradient(circle at bottom right,#7c3aed33,transparent 30%),
+            #020817;
+            color:white;
+            display:flex;
+            min-height:100vh;
+            overflow-x:hidden;
+        }
+
+        ::-webkit-scrollbar{ width:10px; }
+        ::-webkit-scrollbar-thumb{ background:#2563eb; border-radius:20px; }
+
+        /* SIDEBAR */
+        .sidebar{
+            width:270px;
+            background:rgba(6,18,38,0.85);
+            backdrop-filter:blur(18px);
+            border-right:1px solid rgba(255,255,255,0.08);
+            padding:20px 15px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            box-shadow:0 0 40px rgba(37,99,235,0.15);
+        }
+
+        .logo{ text-align:center; padding-top: 15px; }
+        .logo img{ width:150px; height: auto; margin-bottom:20px; filter:drop-shadow(0 0 20px rgba(37, 99, 235, 0.7)); }
+        .logo h2{ font-size: 30px; font-weight:800; }
+        .logo p{ color:#d8d3d3; font-size:14px; }
+
+        .menu{ margin-top:35px; margin-left: -15px; margin-right: -15px;}
+        .menu a{
+            display:flex; align-items:center; gap:12px; padding:15px 30px; 
+            border-radius:0px; color:white; text-decoration:none; margin-bottom:4px; 
+            transition:0.3s; font-weight:500;
+        }
+        
+        .menu a:hover {
+            background: linear-gradient(90deg,#2563eb,#7c3aed);
+            box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+        }
+
+        /* CAJA DE USUARIO */
+        .bottom-box {
+            background: linear-gradient(135deg, #0f172a, #111827); border-radius: 22px;
+            padding: 12px 15px; border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;
+        }
+
+        .user-avatar {
+            width: 42px; height: 42px; border-radius: 50%; background: #2563eb;
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+
+        .user-info { flex: 1; text-align: left; }
+        .user-info h4 { font-size: 14px; font-weight: 600; color: white; }
+        .user-info p { color: #9ca3af; font-size: 11px; }
+
+        /* MAIN & TOPBAR */
+        .main{ flex:1; padding:30px; }
+        .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+        
+        .title-container { display: flex; align-items: center; gap: 20px; }
+        
+        .btn-back {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s ease;
+        }
+        .btn-back:hover {
+            background: rgba(37, 99, 235, 0.15);
+            border-color: #2563eb;
+            color: white;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .title h1{
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(90deg, #2563eb, #a855f7);
+            background-clip: text; -webkit-background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
+        }
+        .title p{ color:#94a3b8; margin-top:5px; }
+
+        .search { background:rgba(15,23,42,0.9); padding:14px 20px; border-radius:18px; width:340px; border:1px solid rgba(255,255,255,0.06); }
+        .search input{ background:none; border:none; outline:none; color:white; width:100%; font-size:15px; }
+
+        /* TABLA DE AUDITORÍA (LOGS) */
+        .logs-container {
+            background: rgba(8, 17, 31, 0.85);
+            backdrop-filter: blur(18px);
+            border-radius: 30px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logs-header h2 { font-size: 26px; font-weight: 700; }
+
+        /* NUEVO NUEVO: MENÚ DE FILTROS INTERACTIVOS */
+        .filter-menu {
+            display: flex;
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 5px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #0f172a;
+            padding: 16px;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        tr:hover td {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .bg-info { background: rgba(37, 99, 235, 0.2); color: #3b82f6; border: 1px solid rgba(37, 99, 235, 0.3); }
+        .bg-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .bg-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .timestamp { color: #64748b; font-family: monospace; font-size: 13px; }
+
+        @media(max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .topbar { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .title-container { flex-direction: column-reverse; align-items: flex-start; gap: 10px; }
+            .search { width: 100%; }
+            .logs-header { flex-direction: column; align-items: flex-start; }
+            .filter-menu { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="imagenes.png/enojona.png" alt="Logo">
+                <h2>San Nicolás</h2>
+                <p>Sistema Inteligente de Inventario</p>
+            </div>
+
+        <div class="menu">
+            <a href="index.html">🏠 Inicio</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="salones.html" class="active">🏫 Salones</a>
+            <a href="reportes.html">📊 Reportes</a>
+            <a href="equipos_mantenimiento.html">🛠 Mantenimiento</a>
+            <a href="usuarios.html">👨‍💻 Usuarios</a>
+            <a href="historial.html">📜 Historial</a>
+            <a href="configuracion.html">⚙ Configuración</a>
+            <div class="menu-separator">Ayuda</div>
+            <a href="manual_usuario.html">📘 Manual de Usuario</a>
+            <a href="manual_programador.html">💻 Manual de Programador</a>
+        </div>
+        </div>
+
+        <div class="bottom-box">
+            <div class="user-avatar">AN</div>
+            <div class="user-info">
+                <h4>Administrador</h4>
+                <p>admin@sanicolas.edu.co</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title-container">
+                <button class="btn-back" onclick="window.history.back();">
+                    ⬅ Volver atrás
+                </button>
+                <div class="title">
+                    <h1>HISTORIAL</h1>
+                    <p>Historial de cambios y auditoría del sistema (Logs)</p>
+                </div>
+            </div>
+            <div class="search">
+                <input type="text" id="log-search" placeholder="Filtrar por usuario o acción...">
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <div class="logs-header">
+                <h2>Historial de Actividad Reciente</h2>
+                
+                <!-- MENU DE FILTROS AGREGADO -->
+                <div class="filter-menu">
+                    <button class="filter-btn active" onclick="filtrarTabla('todos', this)">Todos</button>
+                    <button class="filter-btn" onclick="filtrarTabla('login', this)">Inicio de Sesión</button>
+                    <button class="filter-btn" onclick="filtrarTabla('registrado', this)">Inicio ya Registrado</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Acción / Descripción</th>
+                            <th>Módulo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-body">
+                        <!-- Las filas dinámicas de login.html se insertan aquí vía JS -->
+                        <tr>
+                            <td class="timestamp">03/07/2026 15:42</td>
+                            <td>Juan Pérez</td>
+                            <td>Técnico</td>
+                            <td>Cambió el estado del <strong>Salón 3</strong> a <span style="color: #f59e0b">Mantenimiento</span></td>
+                            <td>🏫 Salones</td>
+                            <td><span class="badge bg-warning">Modificación</span></td>
+                        </tr>
+                        <tr>
+                            <td class="timestamp">03/07/2026 14:10</td>
+                            <td>Admin San Nicolás</td>
+                            <td>SuperAdmin</td>
+                            <td>Generó exportación masiva de 15 códigos QR en PDF</td>
+                            <td>📱 QR Cores</td>
+                            <td><span class="badge bg-info">Info</span></td>
+                        </tr>
+                        <tr>
+                            <td class="timestamp">02/07/2026 11:15</td>
+                            <td>María Gómez</td>
+                            <td>Inventario</td>
+                            <td>Eliminó registro de equipo obsoleto ID: <code>SN-PC-402</code></td>
+                            <td>📦 Inventario</td>
+                            <td><span class="badge bg-danger">Eliminación</span></td>
+                        </tr>
+                        <tr>
+                            <td class="timestamp">02/07/2026 08:30</td>
+                            <td>Carlos Mendoza</td>
+                            <td>Docente</td>
+                            <td>Reportó avería rápida: <em>"Proyector parpadea en verde"</em> desde QR móvil</td>
+                            <td>⚠️ Reportes</td>
+                            <td><span class="badge bg-warning">Modificación</span></td>
+                        </tr>
+                        <tr>
+                            <td class="timestamp">01/07/2026 17:01</td>
+                            <td>Admin San Nicolás</td>
+                            <td>SuperAdmin</td>
+                            <td>Creó un nuevo usuario: <code>tecnico2@sannicolas.edu.co</code></td>
+                            <td>👨‍💻 Usuarios</td>
+                            <td><span class="badge bg-info">Info</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const logsBody = document.getElementById("logs-body");
+            
+            // 1. Cargar las sesiones dinámicas guardadas desde login.html
+            const sesionesGuardadas = JSON.parse(localStorage.getItem('historialSesiones')) || [];
+
+            // 2. Insertar cada sesión al inicio de la tabla
+            sesionesGuardadas.forEach(log => {
+                const fila = document.createElement("tr");
+                // Le añadimos una marca/clase para identificar que es un log de tipo sesión
+                fila.classList.add("log-sesion"); 
+                fila.innerHTML = `
+                    <td class="timestamp">${log.fecha}</td>
+                    <td>${log.usuario}</td>
+                    <td>${log.rol}</td>
+                    <td>${log.accion}</td>
+                    <td>🔑 ${log.modulo}</td>
+                    <td><span class="badge bg-info">${log.estado}</span></td>
+                `;
+                logsBody.insertBefore(fila, logsBody.firstChild);
+            });
+
+            // 3. Buscador Dinámico combinado
+            const logSearch = document.getElementById('log-search');
+            logSearch.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const todasLasFilas = document.querySelectorAll('#logs-body tr');
+                
+                todasLasFilas.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(term) ? '' : 'none';
+                });
+            });
+        });
+
+        // LÓGICA DE FILTRADO PARA EL MENÚ DE BOTONES
+        function filtrarTabla(tipo, botonActivo) {
+            // Cambiar clase activa en los botones del menú
+            const botones = document.querySelectorAll('.filter-btn');
+            botones.forEach(btn => btn.classList.remove('active'));
+            botonActivo.classList.add('active');
+
+            // Filtrar las filas de la tabla
+            const todasLasFilas = document.querySelectorAll('#logs-body tr');
+            
+            todasLasFilas.forEach(row => {
+                const esSesion = row.classList.contains('log-sesion') || row.innerText.toLowerCase().includes('inició sesión');
+
+                if (tipo === 'todos') {
+                    row.style.display = ''; // Muestra todo
+                } else if (tipo === 'login') {
+                    // Muestra sólo los inicios de sesión generados por la tarjeta cyberpunk
+                    row.style.display = esSesion ? '' : 'none';
+                } else if (tipo === 'registrado') {
+                    // Muestra las acciones de usuarios que ya están registrados y modificando cosas
+                    row.style.display = !esSesion ? '' : 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
